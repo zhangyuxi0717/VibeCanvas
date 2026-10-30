@@ -1,0 +1,34 @@
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.WorkLibrary=factory();})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ const VERSION=1, DB_NAME='vibecanvas-works';
+ function validateRecord(r){
+  if(!r || typeof r!=='object')throw Error('作品数据损坏。');
+  if(r.schemaVersion!==VERSION)throw Error('作品版本不兼容，无法打开或覆盖。');
+  if(typeof r.id!=='string'||!r.id||typeof r.name!=='string'||!r.name||!Number.isFinite(r.createdAt)||!Number.isFinite(r.updatedAt)||!Number.isInteger(r.revision)||r.revision<0||typeof r.prompt!=='string'||!r.content||typeof r.content.title!=='string'||typeof r.content.subtitle!=='string'||typeof r.content.description!=='string'||!Array.isArray(r.content.tags)||!r.content.tags.every(t=>typeof t==='string')||!r.content.event||typeof r.content.event!=='object'||!['time','location','organizer'].every(k=>r.content.event[k]===null||typeof r.content.event[k]==='string')||!['text','upload','ai'].includes(r.mode)||typeof r.imagePrompt!=='string'||!['minimal','visual','magazine',null].includes(r.selectedStyleId)||!['matcha','lavender','peach','sky'].includes(r.paletteId)||!r.crops)throw Error('作品数据损坏。');
+  if((r.imagePromptEn!=null&&typeof r.imagePromptEn!=='string')||(r.imagePromptEnFor!=null&&typeof r.imagePromptEnFor!=='string'))throw Error('作品数据损坏。');
+  for(const id of ['minimal','visual','magazine']) {const c=r.crops[id];if(!c||![c.x,c.y,c.zoom].every(Number.isFinite)||c.x<0||c.x>100||c.y<0||c.y>100||c.zoom<1||c.zoom>2)throw Error('作品裁剪数据损坏。');}
+  if(r.photoBlob!=null && (!(r.photoBlob instanceof Blob)||!['image/jpeg','image/png','image/webp'].includes(r.photoBlob.type)))throw Error('作品图片数据损坏。');
+  if(r.photosBlob!=null) {if(typeof r.photosBlob!=='object'||Array.isArray(r.photosBlob))throw Error('作品图片数据损坏。');for(const id of ['minimal','visual','magazine']){const blob=r.photosBlob[id];if(blob!=null && (!(blob instanceof Blob)||!['image/jpeg','image/png','image/webp'].includes(blob.type)))throw Error('作品图片数据损坏。');}}
+  if(r.documentType==='carousel') {
+   if(!Array.isArray(r.pages)||r.pages.length<3||r.pages.length>6||typeof r.activePageId!=='string'||!r.pages.some(p=>p.id===r.activePageId))throw Error('多页作品数据损坏。');
+   if(r.pages[0]?.type!=='cover'||r.pages[r.pages.length-1]?.type!=='ending')throw Error('多页作品顺序损坏。');
+   for(const p of r.pages){if(!p||typeof p.id!=='string'||!['cover','content','ending'].includes(p.type)||typeof p.title!=='string'||typeof p.subtitle!=='string'||typeof p.body!=='string'||!Array.isArray(p.tags)||!p.crops)throw Error('多页作品数据损坏。');for(const id of ['minimal','visual','magazine']){const c=p.crops[id];if(!c||![c.x,c.y,c.zoom].every(Number.isFinite)||c.x<0||c.x>100||c.y<0||c.y>100||c.zoom<1||c.zoom>2)throw Error('多页裁剪数据损坏。');}}
+   if(!r.publishCopy||typeof r.publishCopy.title!=='string'||typeof r.publishCopy.body!=='string'||!Array.isArray(r.publishCopy.tags))throw Error('发布文案数据损坏。');
+  }
+  if(r.thumbnail!=null && !(r.thumbnail instanceof Blob))throw Error('作品缩略图损坏。');
+  return true;
+ }
+ function upgradeRecord(r){validateRecord(r);
+  // 老作品只有一张 photoBlob：复制成三份，三套模板都能打开，不丢图。
+  if(r.photosBlob==null && r.photoBlob){const legacy=r.photoBlob;r={...r,photosBlob:{minimal:legacy,visual:legacy,magazine:legacy}};}
+  if(r.documentType==='carousel'){const pages=r.pages.map(page=>({...page,styleId:page.styleId||r.selectedStyleId||'minimal',paletteId:page.paletteId||r.paletteId||'matcha'}));return {...r,pages};}const id=()=>globalThis.crypto?.randomUUID?.()||('page-'+Date.now()+'-'+Math.random().toString(16).slice(2));const base={title:r.content.title,subtitle:r.content.subtitle,body:r.content.description,tags:r.content.tags,crops:structuredClone(r.crops),photoBlob:r.photoBlob||null,styleId:r.selectedStyleId||'minimal',paletteId:r.paletteId||'matcha'};const cover={...base,id:id(),type:'cover'};const content={...base,id:id(),type:'content',title:r.content.subtitle||r.content.title,subtitle:'继续了解',body:r.content.description};const ending={...base,id:id(),type:'ending',title:'一起开始吧',subtitle:r.content.title,body:r.content.description};return {...r,documentType:'carousel',pages:[cover,content,ending],activePageId:cover.id,publishCopy:{title:r.content.title,body:r.content.description,tags:r.content.tags}};}
+ function cloneRecord(r,id,now=Date.now()){validateRecord(r);const copy={...r,id,name:r.name+' 副本',createdAt:now,updatedAt:now,revision:0,content:structuredClone(r.content),crops:structuredClone(r.crops)};if(r.pages)copy.pages=structuredClone(r.pages);if(r.publishCopy)copy.publishCopy=structuredClone(r.publishCopy);return copy;}
+ function makeSerialSaver(fn){let tail=Promise.resolve();return (...args)=>{const next=tail.then(()=>fn(...args));tail=next.catch(()=>{});return next;};}
+ function open(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(Error('浏览器存储不可用。'));const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>req.result.createObjectStore('works',{keyPath:'id'});req.onerror=()=>reject(req.error||Error('浏览器存储不可用。'));req.onblocked=()=>reject(Error('作品库升级被其他标签页阻止。'));req.onsuccess=()=>{req.result.onversionchange=()=>req.result.close();resolve(req.result)}});}
+ async function run(mode,operation){const db=await open();return new Promise((resolve,reject)=>{const tx=db.transaction('works',mode),store=tx.objectStore('works');let result,error;tx.oncomplete=()=>{db.close();resolve(result)};tx.onabort=tx.onerror=()=>{db.close();reject(error||tx.error||Error('保存失败。'))};try{operation(store,tx,value=>{result=value},e=>{error=e;tx.abort()})}catch(e){error=e;tx.abort()}})}
+ async function list(){return run('readonly',(store,tx,done,fail)=>{const req=store.getAll();req.onsuccess=()=>done(req.result.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)));});}
+ async function get(id){return run('readonly',(store,tx,done)=>{const req=store.get(id);req.onsuccess=()=>done(req.result)});}
+ async function save(record,expected){validateRecord(record);return run('readwrite',(store,tx,done,fail)=>{const req=store.get(record.id);req.onsuccess=()=>{const old=req.result;if(old && old.schemaVersion!==VERSION)return fail(Error('作品版本不兼容，无法覆盖。'));if((old?.revision||0)!==expected || (!old&&expected!==0))return fail(Error('版本冲突：作品已被其他标签页修改或删除。'));const next={...record,revision:expected+1,updatedAt:Date.now()};store.put(next);done(next)}});}
+ async function remove(id,expected){return run('readwrite',(store,tx,done,fail)=>{const req=store.get(id);req.onsuccess=()=>{const old=req.result;if(!old)return fail(Error('作品已不存在。'));if(old.schemaVersion!==VERSION)return fail(Error('作品版本不兼容，无法删除。'));if(old.revision!==expected)return fail(Error('版本冲突：作品已被其他标签页修改。'));store.delete(id);done(true)}});}
+ return {VERSION,validateRecord,upgradeRecord,cloneRecord,makeSerialSaver,list,get,save,remove};
+});

@@ -1,0 +1,23 @@
+# Caddy 反向代理：自动申请并续期证书，Node 只监听 127.0.0.1。
+# 把 canvas.example.cn 换成你的域名，DNS 指向这台服务器后执行：
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+canvas.example.cn {
+	encode zstd gzip
+
+	# 真实来源地址交给 Node 判断限流；只有来自本机代理时才可信
+	reverse_proxy 127.0.0.1:8080 {
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=15552000; includeSubDomains"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/vibecanvas.log
+		format console
+	}
+}

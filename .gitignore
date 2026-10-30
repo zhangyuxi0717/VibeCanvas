@@ -1,0 +1,25 @@
+.env
+.env.*
+!.env.example
+!.env.development.example
+!.env.test.example
+!.env.production.example
+node_modules/
+data/
+.tmp-test-data/
+public/
+*.log
+backups/
+# 旧版本把配图存在仓库根目录时留下的运行时产物
+generation-assets/
+
+# 本地大模型运行时与生成输出
+ComfyUI-portable/
+*.safetensors
+*.7z
+*.bin
+*.png
+*.jpg
+*.jpeg
+*.webp
+

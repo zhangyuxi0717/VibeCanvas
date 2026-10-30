@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="VibeCanvas：校园多模态创意与海报微工坊。"
+    />
+    <title>VibeCanvas · 校园创意微工坊</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React -->
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+
+    <!-- JSX 编译 -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide 图标 -->
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="/work-library.js"></script>
+    <script src="/image-prompts.js"></script>
+
+    <!-- 画布导出 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+      :root {
+        color-scheme: light;
+        font-family: "DM Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: #f8f9f7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: #20271f;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+      }
+
+      ::selection {
+        background: #cce7b8;
+      }
+
+      .font-display {
+        font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei",
+          sans-serif;
+      }
+
+      .studio-grid {
+        background-image:
+          linear-gradient(rgba(66, 86, 61, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(66, 86, 61, 0.045) 1px, transparent 1px);
+        background-size: 28px 28px;
+      }
+
+      .poster-grain {
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.18) 0.7px,
+          transparent 0.7px
+        );
+        background-size: 5px 5px;
+      }
+
+      .enter {
+        animation: enter 0.45s ease both;
+      }
+
+      .float {
+        animation: float 5s ease-in-out infinite;
+      }
+
+      .shimmer {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.6s infinite;
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        50% {
+          transform: translateY(-7px);
+        }
+      }
+
+      @keyframes shimmer {
+        to {
+          background-position: -200% 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+ 
+:root{color-scheme:dark;background:#080a10}body{color:#e9eaf3;background:#080a10}#top{background:radial-gradient(ellipse at 12% 3%,rgba(100,78,185,.23),transparent 35%),radial-gradient(ellipse at 95% 23%,rgba(52,113,129,.16),transparent 32%),#080a10!important}header{background:rgba(11,13,22,.75)!important;border-color:#ffffff14!important;backdrop-filter:blur(22px)}header a{color:#f1f0fa}.prompt-panel,.progress-panel,.studio-grid,.editor-panel{background:rgba(22,24,37,.75)!important;border-color:#ffffff18!important;box-shadow:0 20px 70px #0004,inset 0 1px #ffffff0a!important;backdrop-filter:blur(22px)}.studio-grid{background-image:linear-gradient(#c3beff08 1px,transparent 1px),linear-gradient(90deg,#c3beff08 1px,transparent 1px)!important}main h1,main h2,.editor-panel h3{color:#f1f1f8!important}main p,main label{color:#a7abbd}main textarea,.editor-panel input{color:#f1f1f8!important}main textarea::placeholder{color:#74798d}main div:has(>textarea),.editor-panel input{background:rgba(9,11,19,.65)!important;border-color:#ffffff1a!important}main div:has(>textarea):focus-within,.editor-panel input:focus{border-color:#9688f3!important;box-shadow:0 0 0 3px #8976f421!important}.preset-btn{background:#ffffff09!important;border-color:#ffffff17!important;color:#b9bed0!important}.preset-btn:hover{background:#8b79e824!important;border-color:#a597f673!important}.primary-action{background:linear-gradient(115deg,#7766e7,#a178e8)!important;color:white!important;box-shadow:0 8px 25px #725ce04d!important}.primary-action:hover{filter:brightness(1.12)}.result-card{background:#ffffff0b!important;border-color:#ffffff1a!important}.result-card:hover{transform:translateY(-7px);box-shadow:0 20px 50px #0005,0 0 24px #8471eb1f!important}.result-card[aria-pressed="true"]{border-color:#a99afa!important;box-shadow:0 0 0 3px #9480f324!important}.result-card>div:last-child p:first-child{color:#e7e7f1!important}.result-card>div:last-child p:last-child{color:#8d92a5!important}.glass-chip{background:#9484f11a!important;border-color:#b1a2ff26!important;color:#c2b9fb!important}.status-line{background:#806fd71f!important;border-color:#a896ff33!important;color:#c2b9e7!important}.progress-track{height:4px;background:#ffffff14;border-radius:99px;overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#7f70ed,#c6a5f9,#82d1cf);box-shadow:0 0 12px #a287ff;transition:width .65s ease}.loading-orbit{animation:orbit 2s linear infinite}.progress-fill.shimmer{animation:indeterminate 1.5s ease-in-out infinite}@keyframes indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}@keyframes orbit{to{transform:rotate(360deg)}}.secondary-action{background:#ffffff0f;border:1px solid #ffffff1f;color:#d8daea}.secondary-action:hover{background:#9d8cf029;border-color:#af9eff61}footer{border-color:#ffffff14!important}@media(prefers-reduced-motion:reduce){.loading-orbit{animation:none}}
+      .poster-frame { container-type: inline-size; } .poster-frame h3 { font-size: 5cqw !important; line-height: 1.12 !important; overflow-wrap: anywhere; } .poster-frame h3 + p { font-size: 2.6cqw !important; line-height: 1.25 !important; margin-top: 1.5cqw !important; overflow-wrap: anywhere; } .poster-details { font-size: 2.2cqw; line-height: 1.25; overflow-wrap: anywhere; margin-top: 1cqw; } .poster-details p { color: inherit; margin: 2px 0 0; }
+      .secondary-action, .preset-btn { background: rgba(88, 84, 128, 0.28) !important; border: 1px solid rgba(185, 178, 226, 0.26) !important; color: #f0efff !important; }
+      .secondary-action:hover, .preset-btn:hover { background: rgba(129, 112, 207, 0.42) !important; border-color: rgba(192, 179, 255, 0.65) !important; }
+      .secondary-action[aria-pressed="true"] { background: rgba(125, 105, 218, 0.48) !important; color: #fff !important; border-color: #bcb0ff !important; }
+      .secondary-action:disabled, .preset-btn:disabled { opacity: .55; }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const {
+        useCallback,
+        useEffect,
+        useId,
+        useMemo,
+        useRef,
+        useState,
+      } = React;
+
+      /* ----------------------------------------
+       * 产品事件
+       *
+       * 只上报「发生了什么」：事件名和短枚举/数字，不发送主题、正文、照片。
+       * 攒够 10 条或 5 秒发一次；页面隐藏时用 sendBeacon 补发，避免导出后丢失。
+       * ---------------------------------------- */
+      const Track = (() => {
+        const anonId = (() => {
+          try { let id = localStorage.getItem("vc-anon-id"); if (!id) { id = crypto.randomUUID(); localStorage.setItem("vc-anon-id", id); } return id; } catch { return null; }
+        })();
+        let queue = [], timer = null;
+        const post = body => {
+          try {
+            if (document.visibilityState === "hidden" && navigator.sendBeacon) navigator.sendBeacon("/api/events", new Blob([body], { type: "application/json" }));
+            else fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
+          } catch {}
+        };
+        const flush = () => {
+          if (timer) { clearTimeout(timer); timer = null; }
+          if (!queue.length) return;
+          const batch = queue.splice(0, 20);
+          post(JSON.stringify({ events: batch, anonymousId: anonId, appVersion: "web" }));
+        };
+        const send = (name, props) => {
+          queue.push({ name, props: props || {} });
+          if (queue.length >= 10) flush();
+          else if (!timer) timer = setTimeout(flush, 5000);
+        };
+        window.addEventListener("pagehide", flush);
+        return { send, flush };
+      })();
+
+      // 把错误归成几类，便于统计「失败原因」，又不需要记录错误原文。
+      const errorKind = err => {
+        const message = String(err?.message || "");
+        if (/额度|上限|频繁/.test(message)) return "quota";
+        if (/登录|未配置|受邀/.test(message)) return "auth";
+        if (/超时|Timeout|Abort/.test(message)) return "timeout";
+        if (/连接|network|Failed to fetch/.test(message)) return "network";
+        if (/格式/.test(message)) return "format";
+        if (/配图|图片/.test(message)) return "image";
+        return "unknown";
+      };
+
+      /* ----------------------------------------
+       * 基础配置
+       * ---------------------------------------- */
+
+      const PRESETS = [
+        {
+          label: "吉他社招新",
+          icon: "music-2",
+          prompt: "吉他社招新｜和弦里的夏天，等你一起开场",
+          tag: "CLUB RECRUITMENT",
+          description: "把喜欢的旋律，弹给同频的人听。",
+        },
+        {
+          label: "期末 DDL 突击",
+          icon: "coffee",
+          prompt: "期末 DDL 突击｜一起成为图书馆最后的灯",
+          tag: "STUDY TOGETHER",
+          description: "最后一公里，也要和朋友并肩完成。",
+        },
+        {
+          label: "校园摄影展",
+          icon: "camera",
+          prompt: "校园摄影展｜把日常收进取景框",
+          tag: "CAMPUS EXHIBITION",
+          description: "那些看似平常的瞬间，值得被认真收藏。",
+        },
+      ];
+
+      const PALETTES = [
+        {
+          id: "matcha",
+          name: "抹茶绿",
+          swatch: "#b7d3a1",
+          background: "#dcebcf",
+          surface: "#f7faef",
+          ink: "#293d28",
+          accent: "#71955c",
+          deep: "#3e5b38",
+          soft: "#bad5a7",
+        },
+        {
+          id: "lavender",
+          name: "薰衣草",
+          swatch: "#c6b8e8",
+          background: "#e7e0f5",
+          surface: "#faf7ff",
+          ink: "#403657",
+          accent: "#8e7ab5",
+          deep: "#65547f",
+          soft: "#cfc2e8",
+        },
+        {
+          id: "peach",
+          name: "蜜桃粉",
+          swatch: "#efb9aa",
+          background: "#f8e2d9",
+          surface: "#fff8f4",
+          ink: "#633f39",
+          accent: "#ca8b78",
+          deep: "#a65f51",
+          soft: "#f0c4b5",
+        },
+        {
+          id: "sky",
+          name: "晴空蓝",
+          swatch: "#a9cbe0",
+          background: "#dcecf5",
+          surface: "#f5fbff",
+          ink: "#2d4858",
+          accent: "#6a9bb7",
+          deep: "#496f87",
+          soft: "#b7d7e7",
+        },
+      ];
+
+      const STYLES = [
+        {
+          id: "minimal",
+          number: "01",
+          name: "极简卡片",
+          english: "MINIMAL NOTE",
+          description: "留白与温柔配色",
+        },
+        {
+          id: "visual",
+          number: "02",
+          name: "大图排版",
+          english: "BOLD VISUAL",
+          description: "醒目标题与视觉焦点",
+        },
+        {
+          id: "magazine",
+          number: "03",
+          name: "杂志拼接",
+          english: "EDITORIAL",
+          description: "有层次的灵感拼贴",
+        },
+      ];
+
+      const STEPS = [
+        { title: "解析输入", subtitle: "理解主题与创作方向", icon: "scan-text" },
+        { title: "调用多模态引擎", subtitle: "组合文案与视觉元素", icon: "sparkles" },
+        { title: "智能排版渲染", subtitle: "生成三种专属设计", icon: "layers-2" },
+      ];
+
+      /* ----------------------------------------
+       * Lucide 图标
+       *
+       * 在组件自己的 DOM 容器中创建 SVG，避免 Lucide
+       * 直接修改 React 管理的节点。
+       * ---------------------------------------- */
+
+      function Icon({ name, size = 18, className = "", strokeWidth = 1.8 }) {
+        const containerRef = useRef(null);
+
+        useEffect(() => {
+          const container = containerRef.current;
+          if (!container || !window.lucide) return;
+
+          container.innerHTML = "";
+
+          const placeholder = document.createElement("i");
+          placeholder.setAttribute("data-lucide", name);
+          container.appendChild(placeholder);
+
+          window.lucide.createIcons({
+            root: container,
+            attrs: {
+              width: size,
+              height: size,
+              "stroke-width": strokeWidth,
+              "aria-hidden": "true",
+            },
+          });
+
+          return () => {
+            container.innerHTML = "";
+          };
+        }, [name, size, strokeWidth]);
+
+        return (
+          <span
+            ref={containerRef}
+            className={`inline-flex shrink-0 items-center justify-center ${className}`}
+            aria-hidden="true"
+          />
+        );
+      }
+
+      /* ----------------------------------------
+       * 文案辅助函数
+       * ---------------------------------------- */
+
+      function truncate(text, max = 24) {
+        return text.length > max ? `${text.slice(0, max)}…` : text;
+      }
+
+      function getLayoutWarnings(content, { photo, mode, imageBusy, isCarousel } = {}) {
+        const warnings = [];
+        const title = String(content?.title || "");
+        const subtitle = String(content?.subtitle || "");
+        const body = String(content?.description || "");
+        if (title.length > 14) warnings.push("标题接近版面上限，建议控制在 14 字以内。");
+        if (subtitle.length > 24) warnings.push("副标题较长，移动端可能需要换行。");
+        if (body.length > 64) warnings.push("正文较长，建议删减或拆分到下一页。");
+        if (/[\r\n]/.test(title + subtitle + body)) warnings.push("文本包含换行，导出前请确认断行位置。");
+        if ((mode === "upload" || mode === "ai") && !photo && !imageBusy) warnings.push("当前图片来源没有可用图片，将按纯文字预览导出。");
+        if (isCarousel && body.length > 100) warnings.push("当前页正文接近多页内容上限，建议拆页。");
+        return warnings;
+      }
+
+      /* ----------------------------------------
+       * 页面头部
+       * ---------------------------------------- */
+
+      function Header() {
+        return (
+          <header className="border-b border-[#e8ece6] bg-white/85 backdrop-blur-xl">
+            <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+              <a
+                href="#top"
+                className="flex items-center gap-3"
+                aria-label="VibeCanvas 首页"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#243c2a] text-[#d7efbf] shadow-sm">
+                  <Icon name="sparkles" size={21} />
+                </span>
+                <span>
+                  <span className="font-display block text-[17px] font-bold leading-none tracking-[-0.05em]">
+                    vibe<span className="text-[#779a64]">canvas</span>
+                    <span className="text-[#a3c78f]">.</span>
+                  </span>
+                  <span className="mt-1.5 block text-[9px] font-semibold uppercase tracking-[0.2em] text-[#97a195]">
+                    CAMPUS CREATIVE STUDIO
+                  </span>
+                </span>
+              </a>
+
+              <div className="flex items-center gap-3 sm:gap-5">
+                <span className="hidden items-center gap-2 text-xs text-[#899287] sm:flex">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#8cb878]" />
+                  为校园灵感而生
+                </span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8ece6] bg-[#f5f8f2] text-[#61785b]">
+                  <Icon name="flower-2" size={17} />
+                </span>
+              </div>
+            </div>
+          </header>
+        );
+      }
+
+      /* ----------------------------------------
+       * 创作面板
+       * ---------------------------------------- */
+
+      function PromptPanel({
+        prompt,
+        setPrompt,
+        onGenerate,
+        generating,
+        error,
+        photo,
+        photoLoading,
+        onPhoto,
+        onRemovePhoto,
+        mode, onModeChange, imageBusy, documentType, onDocumentTypeChange,
+      }) {
+        const inputId = useId();
+
+        return (
+          <section
+            className="prompt-panel rounded-[25px] border border-[#e7ebe4] bg-white p-5 shadow-[0_14px_50px_rgba(41,58,39,0.045)] sm:p-7"
+            aria-labelledby="prompt-heading"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.19em] text-[#93a18f]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#eef5e9] text-[#789d66]">
+                    <Icon name="wand-sparkles" size={12} />
+                  </span>
+                  YOUR CREATIVE BRIEF
+                </div>
+                <h2
+                  id="prompt-heading"
+                  className="text-[19px] font-semibold tracking-tight text-[#263027]"
+                >
+                  今天想创造什么？
+                </h2>
+                <p className="mt-1.5 text-[13px] leading-6 text-[#929b90]">
+                  一句话，开启你的校园创作。
+                </p>
+              </div>
+
+              <span className="rounded-full border border-[#e7eee1] bg-[#f8fbf6] px-3 py-1.5 text-[10px] font-medium text-[#83a077]">
+                ✦ 灵感从这里开始
+              </span>
+            </div>
+
+            <div className="mt-6">
+              <label
+                htmlFor={inputId}
+                className="mb-2.5 block text-xs font-semibold text-[#63705f]"
+              >
+                活动主题（有照片时可不填写）
+              </label>
+              <div
+                className={`rounded-2xl border bg-[#fafbf9] p-3 transition focus-within:border-[#9cbe89] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#e8f3e2] ${
+                  error ? "border-[#d99d8e]" : "border-[#e7ebe5]"
+                }`}
+              >
+                <textarea
+                  id={inputId}
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  placeholder="例如：吉他社招新，想邀请热爱音乐的同学一起加入..."
+                  maxLength={500}
+                  rows={3}
+                  className="w-full resize-none bg-transparent px-1 py-1 text-sm leading-6 text-[#344034] outline-none placeholder:text-[#b2bbb0]"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "prompt-error" : undefined}
+                />
+                <div className="flex items-center justify-between border-t border-[#eef1ec] pt-3">
+                  <span className="flex items-center gap-1.5 text-[11px] text-[#a8b2a5]">
+                    <Icon name="sparkles" size={13} />
+                    写下主题，剩下的交给灵感
+                  </span>
+                  <span className="text-[11px] tabular-nums text-[#b1bab0]">
+                    {prompt.length}/500
+                  </span>
+                </div>
+              </div>
+              {error && (
+                <p
+                  id="prompt-error"
+                  role="alert"
+                  className="mt-2 text-xs text-[#b75f4c]"
+                >
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5"><p className="mb-2 text-xs font-semibold">图片来源</p><div className="flex flex-wrap gap-2">{[["text","纯文字"],["upload","上传照片"],["ai","AI 配图"]].map(([id,label])=><button key={id} type="button" aria-pressed={mode===id} disabled={generating || photoLoading} onClick={()=>onModeChange(id)} className={`secondary-action rounded-lg px-3 py-2 text-xs ${mode===id ? "ring-2 ring-violet-400" : ""}`}>{label}</button>)}</div><p className="mt-2 text-[11px]">选择 AI 配图会调用图片服务并可能产生费用。</p></div>
+            <div className="mt-4"><p className="mb-2 text-xs font-semibold">内容形式</p><div className="flex flex-wrap gap-2">{[["single","单张海报"],["carousel","连续多页图文"]].map(([id,label])=><button key={id} type="button" aria-pressed={documentType===id} disabled={generating || photoLoading || imageBusy} onClick={()=>onDocumentTypeChange(id)} className={`secondary-action rounded-lg px-3 py-2 text-xs ${documentType===id ? "ring-2 ring-violet-400" : ""}`}>{label}</button>)}</div><p className="mt-2 text-[11px]">连续多页会生成 3–6 页，统一风格后可逐页编辑。</p></div>
+            {mode === "upload" && <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <label htmlFor="photo-upload" className="block text-xs font-semibold text-[#bcbfd1]">活动照片（可选）</label>
+              <p className="mt-1 text-[11px] leading-5 text-[#9298aa]">JPEG、PNG、WebP，最大 8MB。照片会发送给配置的视觉模型服务处理，不会云端保存。</p>
+              {photo && <img src={photo.url} alt="已上传的活动照片预览" className="mt-3 h-32 w-full rounded-xl object-cover" />}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <label htmlFor="photo-upload" className="secondary-action inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs"><Icon name="image-plus" size={15}/>{photo ? "替换照片" : "选择照片"}</label>
+                <input id="photo-upload" type="file" accept="image/jpeg,image/png,image/webp" disabled={generating || photoLoading} className="sr-only" onChange={e=>{const file=e.target.files?.[0];e.target.value="";if(file) onPhoto(file);}} />
+                {photo && <button type="button" disabled={generating || photoLoading} onClick={onRemovePhoto} className="secondary-action rounded-lg px-3 py-2 text-xs">移除照片</button>}
+              </div>{photoLoading && <p className="mt-2 text-xs">正在检查照片…</p>}
+            </div>}
+            <div className="mt-5">
+              <div className="mb-2.5 flex items-center gap-2 text-xs text-[#9aa597]">
+                <Icon name="zap" size={13} />
+                试试这些灵感
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {PRESETS.map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => setPrompt(preset.prompt)}
+                    className="preset-btn inline-flex items-center gap-1.5 rounded-full border border-[#e8ece5] bg-white px-3 py-2 text-xs text-[#657260] transition hover:-translate-y-0.5 hover:border-[#bfd4b4] hover:bg-[#f6faf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9cbe89]"
+                  >
+                    <Icon
+                      name={preset.icon}
+                      size={13}
+                      className="text-[#87a47b]"
+                    />
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onGenerate}
+              disabled={generating || photoLoading || imageBusy}
+              className="primary-action mt-6 flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#263d2b] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(40,66,43,0.14)] transition hover:-translate-y-0.5 hover:bg-[#35533a] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#cfe4c5] disabled:translate-y-0 disabled:opacity-65"
+            >
+              <Icon name={generating ? "loader-circle" : "sparkles"} size={16} className={generating ? "loading-orbit" : ""} />
+              {generating ? "正在生成文案..." : imageBusy ? "正在生成配图..." : "生成我的创意"}
+              {!generating && <Icon name="arrow-right" size={16} />}
+            </button>
+
+            <p className="mt-3 text-center text-[11px] text-[#acb5a9]">
+              文字或照片至少填写一项 · 活动信息只使用用户提供的内容
+            </p>
+          </section>
+        );
+      }
+
+      /* ----------------------------------------
+       * 处理进度
+       * ---------------------------------------- */
+
+      function ProgressPanel({ generating, hasResult, error, generationStep }) {
+        const steps = ["解析输入", "调用多模态引擎", "校验并排版"];
+        return <section className="progress-panel rounded-[25px] border border-[#e7ebe4] bg-white p-5 sm:p-7" aria-live="polite">
+          <div className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#a0aa9e]">THE CREATIVE FLOW</div>
+          <h2 className="mt-2 text-[17px] font-semibold">创作状态</h2>
+          <div className="mt-5 flex items-center gap-3 text-sm text-[#c5c4e4]">
+            <Icon name={generating ? "loader-circle" : error ? "circle-alert" : hasResult ? "circle-check" : "sparkles"} size={18} className={generating ? "loading-orbit" : ""} />
+            <span>{generating ? "正在请求模型，请稍候…" : error ? "生成失败，可以修改输入后重试" : hasResult ? "文案已生成，可以选择模板微调" : "输入主题后开始创作"}</span>
+          </div>
+          {generating && <ol className="mt-5 grid grid-cols-3 gap-2" aria-label="生成步骤">{steps.map((step,index)=>{const active=generationStep>=index+1;return <li key={step} className={`rounded-lg border px-2 py-2 text-center text-[10px] ${active?"border-violet-300/50 bg-violet-400/15 text-violet-100":"border-white/10 text-[#777d92]"}`}><span className="block font-semibold">{index+1}</span>{step}</li>})}</ol>}
+        </section>;
+      }
+
+      /* ----------------------------------------
+       * 海报插画：纯 CSS / SVG，不依赖外部图片
+       * ---------------------------------------- */
+
+      function PosterIllustration({ palette, variant = "minimal" }) {
+        const id = useId().replace(/:/g, "");
+
+        if (variant === "visual") {
+          return (
+            <svg
+              viewBox="0 0 320 250"
+              className="h-full w-full"
+              preserveAspectRatio="xMidYMid slice"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor={palette.soft} />
+                  <stop offset="100%" stopColor={palette.accent} />
+                </linearGradient>
+              </defs>
+              <rect width="320" height="250" fill={`url(#gradient-${id})`} />
+              <circle cx="240" cy="56" r="68" fill={palette.surface} opacity=".3" />
+              <circle cx="77" cy="198" r="95" fill={palette.deep} opacity=".16" />
+              <path
+                d="M-20 216 C 55 125, 115 230, 185 150 S 300 122, 350 65"
+                fill="none"
+                stroke={palette.surface}
+                strokeWidth="35"
+                opacity=".35"
+              />
+              <path
+                d="M-25 240 C 70 148, 125 250, 195 170 S 295 142, 345 85"
+                fill="none"
+                stroke={palette.deep}
+                strokeWidth="2"
+                opacity=".35"
+              />
+              <g fill={palette.surface} opacity=".9">
+                <path d="M235 96 l6 17 17 6 -17 6 -6 17 -6 -17 -17 -6 17 -6z" />
+                <path d="M90 61 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3z" />
+              </g>
+              <circle cx="160" cy="120" r="44" fill="none" stroke={palette.surface} opacity=".55" />
+              <circle cx="160" cy="120" r="55" fill="none" stroke={palette.surface} opacity=".25" />
+            </svg>
+          );
+        }
+
+        return (
+          <svg
+            viewBox="0 0 280 175"
+            className="h-full w-full"
+            aria-hidden="true"
+          >
+            <ellipse cx="140" cy="149" rx="95" ry="10" fill={palette.deep} opacity=".08" />
+            <circle cx="140" cy="85" r="62" fill={palette.soft} opacity=".7" />
+            <circle cx="140" cy="85" r="49" fill={palette.surface} opacity=".85" />
+            <path
+              d="M85 118 C 105 79, 116 118, 140 81 C 164 44, 179 84, 196 57"
+              fill="none"
+              stroke={palette.accent}
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d="M96 129 C 119 105, 135 133, 158 103 C 175 81, 183 99, 194 87"
+              fill="none"
+              stroke={palette.deep}
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              opacity=".55"
+            />
+            <circle cx="140" cy="81" r="5" fill={palette.deep} />
+            <path
+              d="M203 24 l4 12 12 4 -12 4 -4 12 -4 -12 -12 -4 12 -4z"
+              fill={palette.accent}
+            />
+            <path
+              d="M68 49 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"
+              fill={palette.accent}
+              opacity=".7"
+            />
+          </svg>
+        );
+      }
+
+      /* ----------------------------------------
+       * 三种海报模板
+       * ---------------------------------------- */
+
+      function PosterDetails({ content }) {
+        return <div className="poster-details"><p>{content.description}</p><p>{[content.event.time,content.event.location,content.event.organizer].filter(Boolean).join(" · ")}</p><p>{content.tags.map(tag => "#" + tag).join(" ")}</p></div>;
+      }
+      function PhotoFrame({photo,crop}) {
+        return <div role="img" aria-label="活动照片" style={{width:"100%",height:"100%",overflow:"hidden",position:"relative"}}><div style={{width:"100%",height:"100%",backgroundImage: `url("${photo.url}")`,backgroundSize:"cover",backgroundPosition:`${crop.x}% ${crop.y}%`,backgroundRepeat:"no-repeat",transform:`scale(${crop.zoom})`,transformOrigin:"center"}} /></div>;
+      }
+      function Poster({ styleId, content, palette, photo, crop }) {
+        const common = {
+          backgroundColor: palette.background,
+          color: palette.ink,
+          aspectRatio: "3 / 4",
+        };
+
+        if (styleId === "visual") {
+          return (
+            <div
+              className="poster-frame poster-grain relative flex w-full flex-col overflow-hidden"
+              style={common}
+            >
+              <div
+                className="flex items-center justify-between px-[7%] pt-[7%] text-[8px] font-bold tracking-[0.19em]"
+                style={{ color: palette.deep }}
+              >
+                <span>VIBECANVAS / 02</span>
+                <span>MAKE IT REAL ✳</span>
+              </div>
+              <div className="relative mx-[7%] mt-[7%] h-[42%] overflow-hidden rounded-[3px]">
+                {photo ? <PhotoFrame photo={photo} crop={crop} /> : <PosterIllustration palette={palette} variant="visual" />}
+                <span
+                  className="absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[7px] font-bold tracking-[0.16em]"
+                  style={{ backgroundColor: palette.surface, color: palette.deep }}
+                >
+                  CAMPUS MOMENTS
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col px-[7%] pb-[7%] pt-[7%]">
+                <p
+                  className="text-[8px] font-bold tracking-[0.2em]"
+                  style={{ color: palette.accent }}
+                >
+                  CAMPUS CREATIVE
+                </p>
+                <h3 className="mt-2 break-words text-[clamp(21px,3vw,35px)] font-bold leading-[1.12] tracking-[-0.06em]">
+                  {content.title}
+                </h3>
+                <p className="mt-3 text-[10px] leading-relaxed opacity-70">
+                  {content.subtitle}
+                </p>
+                <PosterDetails content={content} />
+                <div
+                  className="mt-auto flex items-center justify-between border-t pt-3 text-[8px] font-semibold tracking-wider"
+                  style={{ borderColor: `${palette.deep}40` }}
+                >
+                  <span>GOOD IDEAS START HERE</span>
+                  <span>↗</span>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (styleId === "magazine") {
+          return (
+            <div
+              className="poster-frame poster-grain relative flex w-full flex-col overflow-hidden p-[7%]"
+              style={common}
+            >
+              <div className="flex items-center justify-between text-[8px] font-bold tracking-[0.18em]">
+                <span>THE CAMPUS EDIT</span>
+                <span>VOL. 03</span>
+              </div>
+              <div
+                className="mt-[6%] border-y py-2 text-center font-display text-[clamp(25px,3.2vw,39px)] font-bold leading-none tracking-[-0.07em]"
+                style={{ borderColor: `${palette.deep}80` }}
+              >
+                GOOD VIBES
+              </div>
+              <div className="relative mt-[6%] flex-1">
+                <div
+                  className="absolute left-[1%] top-[2%] h-[60%] w-[68%] rotate-[-4deg] p-2 shadow-sm"
+                  style={{ backgroundColor: palette.surface }}
+                >
+                  <div
+                    className="h-full overflow-hidden"
+                    style={{ backgroundColor: palette.soft }}
+                  >
+                    {photo ? <PhotoFrame photo={photo} crop={crop} /> : <PosterIllustration palette={palette} variant="visual" />}
+                  </div>
+                </div>
+                <div
+                  className="absolute right-0 top-[27%] flex h-[45%] w-[49%] rotate-[5deg] flex-col justify-between p-[5%] shadow-sm"
+                  style={{ backgroundColor: palette.deep, color: palette.surface }}
+                >
+                  <span className="text-[7px] font-bold tracking-[0.18em]">
+                    LITTLE IDEAS
+                  </span>
+                  <span className="font-display text-[clamp(20px,2.8vw,30px)] font-bold leading-[0.95]">
+                    MAKE
+                    <br />
+                    IT
+                    <br />
+                    HAPPEN.
+                  </span>
+                  <span className="text-[7px] tracking-widest">✳ ✳ ✳</span>
+                </div>
+                <div
+                  className="absolute bottom-[2%] left-[5%] w-[76%] rotate-[-2deg] px-[5%] py-[4%] shadow-sm"
+                  style={{ backgroundColor: palette.surface }}
+                >
+                  <p
+                    className="text-[7px] font-bold tracking-[0.15em]"
+                    style={{ color: palette.accent }}
+                  >
+                    CAMPUS CREATIVE
+                  </p>
+                  <h3 className="mt-1 break-words text-[clamp(17px,2.4vw,25px)] font-bold leading-tight tracking-tight">
+                    {content.title}
+                  </h3>
+                  <p className="mt-1 text-[9px] leading-relaxed opacity-65">
+                    {content.subtitle}
+                  </p>
+                  <PosterDetails content={content} />
+                </div>
+              </div>
+              <div
+                className="mt-3 flex items-center justify-between border-t pt-3 text-[7px] font-bold tracking-[0.15em]"
+                style={{ borderColor: `${palette.deep}70` }}
+              >
+                <span>COLLECT MOMENTS, CREATE STORIES</span>
+                <span>✳</span>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div
+            className="poster-frame poster-grain relative flex w-full flex-col overflow-hidden p-[7%]"
+            style={common}
+          >
+            <div className="flex items-center justify-between text-[8px] font-bold tracking-[0.18em]">
+              <span>VIBECANVAS STUDIO</span>
+              <span>✳ 01</span>
+            </div>
+            <div
+              className="mt-[8%] flex flex-1 flex-col rounded-[4px] px-[8%] py-[7%]"
+              style={{ backgroundColor: palette.surface }}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="rounded-full px-2 py-1 text-[7px] font-bold tracking-[0.14em]"
+                  style={{
+                    backgroundColor: palette.background,
+                    color: palette.deep,
+                  }}
+                >
+                  CAMPUS CREATIVE
+                </span>
+                <span className="text-[13px]" style={{ color: palette.accent }}>
+                  ✳
+                </span>
+              </div>
+              <div className="mt-[5%] h-[18%]">
+                {photo ? <PhotoFrame photo={photo} crop={crop} /> : <PosterIllustration palette={palette} />}
+              </div>
+              <div className="mt-auto">
+                <div
+                  className="mb-3 h-1 w-8 rounded-full"
+                  style={{ backgroundColor: palette.accent }}
+                />
+                <h3 className="break-words text-[clamp(20px,2.8vw,31px)] font-bold leading-[1.17] tracking-[-0.05em]">
+                  {content.title}
+                </h3>
+                <p className="mt-3 text-[10px] leading-relaxed opacity-70">
+                  {content.subtitle}
+                </p>
+                <PosterDetails content={content} />
+                <div
+                  className="mt-5 flex items-center justify-between border-t pt-3 text-[7px] font-bold tracking-[0.15em]"
+                  style={{ borderColor: `${palette.deep}25` }}
+                >
+                  <span>YOUR STORY STARTS HERE</span>
+                  <span>↗</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-[6%] flex justify-between text-[7px] font-semibold tracking-[0.16em] opacity-65">
+              <span>CREATE SOMETHING LOVELY</span>
+              <span>MADE ON CAMPUS</span>
+            </div>
+          </div>
+        );
+      }
+
+      /* ----------------------------------------
+       * 预览卡片
+       * ---------------------------------------- */
+
+      function ResultCard({ style, content, palette, photo, crop, selected, onSelect }) {
+        return (
+          <button
+            type="button"
+            onClick={onSelect}
+            aria-pressed={selected}
+            aria-label={`选择${style.name}风格`}
+            className={`result-card group w-full rounded-[20px] border bg-white p-2.5 text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(47,65,43,0.10)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#d7e9ce] ${
+              selected
+                ? "border-[#93b982] shadow-[0_0_0_3px_rgba(157,192,141,0.15)]"
+                : "border-[#e8ede5]"
+            }`}
+          >
+            <div className="overflow-hidden rounded-xl">
+              <Poster styleId={style.id} content={content} palette={palette} photo={photo} crop={crop} />
+            </div>
+            <div className="flex items-center justify-between px-1 pb-1 pt-4">
+              <div>
+                <p className="text-[13px] font-semibold text-[#344033]">
+                  {style.name}
+                </p>
+                <p className="mt-1 text-[10px] text-[#a3aea0]">
+                  {style.english}
+                </p>
+              </div>
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                  selected
+                    ? "bg-[#eaf4e5] text-[#719a61]"
+                    : "bg-[#f6f8f5] text-[#a8b4a5] group-hover:bg-[#edf5e9] group-hover:text-[#719a61]"
+                }`}
+              >
+                <Icon name={selected ? "check" : "arrow-up-right"} size={15} />
+              </span>
+            </div>
+          </button>
+        );
+      }
+
+      /* ----------------------------------------
+       * 微调面板
+       * ---------------------------------------- */
+
+      function EditorPanel({
+        selectedStyle,
+        generating,
+        content,
+        tagsText,
+        onEdit,
+        paletteId,
+        onPaletteChange,
+        onDownload,
+        downloading,
+        onCopy,
+        copyState,
+        photo, crop, onCrop,
+        onRegenerateCopy, onRegeneratePage, layoutWarnings,
+      }) {
+        const titleId = useId();
+
+        return (
+          <div className="editor-panel enter mt-7 rounded-[20px] border border-[#e6ece2] bg-white p-5 shadow-[0_12px_35px_rgba(41,58,39,0.04)] sm:p-6">
+            <fieldset disabled={generating} className="disabled:opacity-60">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#eff6eb] text-[#789d68]">
+                    <Icon name="sliders-horizontal" size={15} />
+                  </span>
+                  <h3 className="text-sm font-semibold">让它更像你</h3>
+                </div>
+                <p className="mt-2 text-xs text-[#9ca89a]">
+                  正在微调「{selectedStyle.name}」 · 修改会实时更新画布
+                </p>
+              </div>
+              <span className="rounded-full bg-[#f3f7f0] px-3 py-1.5 text-[10px] text-[#82977b]">
+                EDIT MODE
+              </span>
+            </div>
+
+            <div className="mt-5 grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end">
+              <div>
+                <label
+                  htmlFor={titleId}
+                  className="mb-2 block text-xs font-semibold text-[#71806d]"
+                >
+                  海报标题
+                </label>
+                <input
+                  id={titleId}
+                  value={content.title}
+                  onChange={(event) => onEdit("title", event.target.value)}
+                  maxLength={18}
+                  placeholder="输入你的海报标题"
+                  className="w-full rounded-xl border border-[#e6ece3] bg-[#fafbf9] px-4 py-3 text-sm text-[#344034] outline-none transition focus:border-[#9cbe89] focus:bg-white focus:ring-4 focus:ring-[#edf5e9]"
+                />
+              </div>
+
+              <div>
+                <span className="mb-2 block text-xs font-semibold text-[#71806d]">
+                  切换色系
+                </span>
+                <div className="flex h-[46px] items-center gap-2">
+                  {PALETTES.map((palette) => (
+                    <button
+                      key={palette.id}
+                      type="button"
+                      aria-label={`切换为${palette.name}`}
+                      aria-pressed={paletteId === palette.id}
+                      onClick={() => onPaletteChange(palette.id)}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7d9f70] ${
+                        paletteId === palette.id
+                          ? "border-[#78996c]"
+                          : "border-transparent"
+                      }`}
+                    >
+                      <span
+                        className="h-7 w-7 rounded-full border border-black/5"
+                        style={{ backgroundColor: palette.swatch }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4">
+              <label className="text-xs">副标题（最多 30 字）<input value={content.subtitle} maxLength={30} onChange={e => onEdit("subtitle", e.target.value)} className="mt-2 w-full rounded-xl border px-4 py-3 text-sm" /></label>
+              <label className="text-xs">宣传正文（最多 80 字）<textarea value={content.description} maxLength={80} rows={3} onChange={e => onEdit("description", e.target.value.replace(/[\r\n]/g,""))} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b13] px-4 py-3 text-sm text-white" /></label>
+              <label className="text-xs">标签（最多 4 个，每个最多 10 字，以逗号分隔）<input value={tagsText} onChange={e => onEdit("tags",e.target.value)} className="mt-2 w-full rounded-xl border px-4 py-3 text-sm" /></label>
+            </div>
+            {photo && <div className="mt-5 grid gap-3 rounded-xl border border-white/10 p-4"><p className="text-xs font-semibold">调整当前模板的照片裁剪</p>{[["zoom","缩放",1,2,0.05],["x","水平位置",0,100,1],["y","垂直位置",0,100,1]].map(([key,label,min,max,step])=><label key={key} className="flex items-center gap-3 text-xs"><span className="w-16">{label}</span><input type="range" aria-label={label} min={min} max={max} step={step} value={crop[key]} onChange={e=>onCrop(key,Number(e.target.value))} className="flex-1 accent-violet-400" /></label>)}</div>}
+            <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={onDownload}
+              disabled={downloading}
+              className="primary-action inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#263d2b] px-5 py-3 text-xs font-semibold text-white transition hover:bg-[#35533a] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#d7e9ce] disabled:opacity-60 sm:w-auto"
+            >
+              <Icon name="download" size={15} />
+              {downloading ? "正在导出..." : "下载当前海报"}
+            </button>
+            <button type="button" onClick={onCopy} className="secondary-action inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:w-auto"><Icon name={copyState === "done" ? "check" : "copy"} size={15} />{copyState === "done" ? "已复制" : "复制文案"}</button></div>
+            <p role="status" className="mt-2 text-xs">{copyState === "error" ? "复制失败，请手动选择并复制标题。" : copyState === "done" ? "文案已复制到剪贴板。" : ""}</p>
+            {layoutWarnings?.length > 0 && <div className="mt-4 rounded-xl border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-xs leading-5 text-amber-100" role="status"><p className="font-semibold">排版检查提示</p><ul className="mt-1 list-disc pl-4">{layoutWarnings.map(warning=><li key={warning}>{warning}</li>)}</ul><p className="mt-1 text-[10px] text-amber-100/70">这是基于字数和资源状态的提示，不代表自动判断了全部设计质量。</p></div>}
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-4">
+              <button type="button" onClick={onRegenerateCopy} disabled={generating} className="secondary-action rounded-lg px-3 py-2 text-xs">重新生成文案</button>
+              {onRegeneratePage && <button type="button" onClick={onRegeneratePage} disabled={generating} className="secondary-action rounded-lg px-3 py-2 text-xs">重新生成当前页</button>}
+            </div>
+            <p className="mt-2 text-[10px] text-[#9b9fb4]">重新生成文案会覆盖对应文字；当前页按钮只覆盖当前页内容，不会修改其他页。两者都会再次调用文本模型。</p>
+            </fieldset>
+          </div>
+        );
+      }
+
+      /* ----------------------------------------
+       * 主应用
+       * ---------------------------------------- */
+
+      function WorkThumbnail({blob}) {
+        const [url,setUrl]=useState(''); useEffect(()=>{if(!blob){setUrl('');return;}const u=URL.createObjectURL(blob);setUrl(u);return ()=>URL.revokeObjectURL(u);},[blob]);
+        return url ? <img src={url} alt="作品缩略图" className="h-20 w-16 rounded-lg object-cover" /> : <div className="flex h-20 w-16 items-center justify-center rounded-lg bg-white/10 text-violet-300"><Icon name="image" size={18}/></div>;
+      }
+      function App() {
+        const newWork=()=>({schemaVersion:1,id:crypto.randomUUID(),name:'未命名作品',createdAt:Date.now(),updatedAt:Date.now(),revision:0,prompt:'',documentType:'single',activePageId:null,pages:null,publishCopy:null,content:{title:'你的校园灵感',subtitle:'让每一个好点子，都值得被看见',description:'从一个想法开始，创造属于你的校园故事。',tags:['校园生活'],event:{time:null,location:null,organizer:null}},mode:'text',photos:{minimal:null,visual:null,magazine:null},imagePrompt:'',imagePromptEn:'',imagePromptEnFor:'',selectedStyleId:null,paletteId:'matcha',crops:{minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}},thumbnail:null,hasResult:false,cloudId:null,cloudRevision:0,cloudAsset:null});
+        const [work,setWork]=useState(newWork);
+        const workRef=useRef(work); workRef.current=work;
+        const seqRef=useRef(0),savedSeqRef=useRef(0),revisionRef=useRef(0),savePromiseRef=useRef(null),saveTimerRef=useRef(null),initializedRef=useRef(false),conflictRef=useRef(false),channelRef=useRef(null);
+        const [saveStatus,setSaveStatus]=useState('准备中');
+        const [saveError,setSaveError]=useState('');
+        const [libraryOpen,setLibraryOpen]=useState(false);
+        const [storageReady,setStorageReady]=useState(false);
+        const [libraryList,setLibraryList]=useState([]);
+        const [cloudConfig,setCloudConfig]=useState(null);
+        const [cloudClient,setCloudClient]=useState(null);
+        const [cloudUser,setCloudUser]=useState(null);
+        const [cloudWorks,setCloudWorks]=useState([]);
+        const [cloudStatus,setCloudStatus]=useState('未登录');
+        const [cloudError,setCloudError]=useState('');
+        const [cloudBusy,setCloudBusy]=useState(false);
+        // 反馈只收分数和一段文字，不读取任何作品内容或照片。
+        const [feedbackOpen,setFeedbackOpen]=useState(false);
+        const [feedbackRating,setFeedbackRating]=useState(0);
+        const [feedbackText,setFeedbackText]=useState('');
+        const [feedbackBusy,setFeedbackBusy]=useState(false);
+        const [feedbackStatus,setFeedbackStatus]=useState('');
+        const setField=(key,value)=>{seqRef.current++;setWork(previous=>({...previous,[key]:typeof value==='function'?value(previous[key]):value}));};
+        const {prompt,selectedStyleId,paletteId,mode,imagePrompt,imagePromptEn,imagePromptEnFor,crops,hasResult}=work;
+        // 英文描述只对得上它翻译时的那段中文；中文一改，就得重新翻译。
+        const englishFresh=!!imagePromptEn&&imagePromptEnFor===imagePrompt.trim();
+        // 三套模板各自一张图。上传照片时三份指向同一张；AI 配图时三份互不相同。
+        const photos=work.photos||{minimal:null,visual:null,magazine:null};
+        const firstPhoto=photos.minimal||photos.visual||photos.magazine||null;
+        const isCarousel=work.documentType==='carousel';
+        const activePage=useMemo(()=>isCarousel?(work.pages||[]).find(page=>page.id===work.activePageId)||work.pages?.[0]:null,[isCarousel,work.pages,work.activePageId]);
+        const content=isCarousel&&activePage?{title:activePage.title,subtitle:activePage.subtitle,description:activePage.body,tags:activePage.tags,event:work.content.event}:work.content;
+        const setPrompt=v=>setField('prompt',v),setSelectedStyleId=v=>setField('selectedStyleId',v),setPaletteId=v=>setField('paletteId',v),setMode=v=>setField('mode',v),setImagePrompt=v=>setField('imagePrompt',v),setCrops=v=>setField('crops',v),setHasResult=v=>setField('hasResult',v);
+        const setPhotos=v=>setField('photos',v);
+        const setStylePhoto=(id,value)=>setField('photos',current=>({...(current||{}),[id]:value}));
+        const setContent=updater=>setField(isCarousel?'pages':'content',current=>{if(!isCarousel)return typeof updater==='function'?updater(current):updater;const pages=current||[];return pages.map(page=>page.id===work.activePageId?{...page,...(typeof updater==='function'?(()=>{const next=updater(content);return {title:next.title,subtitle:next.subtitle,body:next.description,tags:next.tags}})():updater)}:page)});
+        const [error,setError]=useState('');
+        const [generating,setGenerating]=useState(false);
+        const [generationStep,setGenerationStep]=useState(0);
+        const [dirty,setDirty]=useState(false);
+        const [tagsText,setTagsText]=useState('校园生活');
+        const [downloading,setDownloading]=useState(false);
+        const [exportError,setExportError]=useState('');
+        const [copyState,setCopyState]=useState('');
+        const [imageBusy,setImageBusy]=useState(false);
+        const [imageStatus,setImageStatus]=useState('');
+        const [imageError,setImageError]=useState('');
+        const [photoLoading,setPhotoLoading]=useState(false);
+        // 付费闭环：额度账户凭证只存在本浏览器；清缓存/换浏览器就看不到原来的额度。
+        const [billingConfig,setBillingConfig]=useState(null);
+        const [billingToken,setBillingToken]=useState(()=>{try{return localStorage.getItem('vibecanvas-billing-token')||''}catch{return ''}});
+        const [billingWallet,setBillingWallet]=useState(null);
+        const [billingOrders,setBillingOrders]=useState([]);
+        const [billingOpen,setBillingOpen]=useState(false);
+        const [billingBusy,setBillingBusy]=useState(false);
+        const [billingError,setBillingError]=useState('');
+        const [billingNotice,setBillingNotice]=useState('');
+        const [billingConfirming,setBillingConfirming]=useState(null);
+
+        const requestRef = useRef(false);
+        const billingPollRef = useRef(new Set());
+        const imageLock = useRef(false);
+        const workVersion = useRef(0);
+        useEffect(() => () => {workVersion.current++;}, []);
+        const exportRef = useRef(null);
+        // 三张图各自有 objectURL：只释放已经换掉的，不能一改就把另外两张也释放掉。
+        const photoUrlsRef = useRef([]);
+        useEffect(() => {
+          const urls = [...new Set(Object.values(photos).map(item => item?.url).filter(Boolean))];
+          for (const url of photoUrlsRef.current) if (!urls.includes(url)) URL.revokeObjectURL(url);
+          photoUrlsRef.current = urls;
+        }, [photos]);
+        useEffect(() => () => { for (const url of photoUrlsRef.current) URL.revokeObjectURL(url); }, []);
+
+        const cloudToken=async()=>{if(!cloudClient)return null;const {data}=await cloudClient.auth.getSession();return data.session?.access_token||null;};
+        const cloudFetch=async(path,options={})=>{const token=await cloudToken();if(!token)throw Error('请先登录。');const response=await fetch(path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),Authorization:`Bearer ${token}`}});const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'云端服务暂时不可用。');return data;};
+        const loadCloudWorks=async()=>{if(!cloudUser)return;try{const data=await cloudFetch('/api/cloud/works');setCloudWorks(data.works||[]);setCloudStatus('已登录');setCloudError('');}catch(e){setCloudStatus('同步失败');setCloudError(e.message||'云端作品加载失败。');}};
+        const cloudDocument=current=>{const record=recordFromWork(current);const {photosBlob,thumbnail,...document}=record;return {...document,photosBlob:null,thumbnail:null,cloudAssets:current.cloudAssets||{}};};
+        const blobToBase64=blob=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(Error('图片读取失败。'));reader.readAsDataURL(blob);});
+        const uploadCloudPhoto=async(workId,blob)=>{const token=await cloudToken();if(!token)throw Error('请先登录。');const assetId=crypto.randomUUID();const data=await blobToBase64(blob);const result=await cloudFetch(`/api/cloud/works/${workId}/assets`,{method:'POST',body:JSON.stringify({assetId,mime:blob.type,data})});return {...result.asset,assetId};};
+        const uploadMissingPhotos=async(workId,current)=>{const assets={...(current.cloudAssets||{})};let changed=false;for(const id of ['minimal','visual','magazine']){const blob=current.photos?.[id]?.blob;if(blob&&!assets[id]){assets[id]=await uploadCloudPhoto(workId,blob);changed=true;}}return changed?assets:null;};
+        const syncCurrent=async()=>{if(!cloudUser){setCloudError('请先登录后再同步。');return;}if(cloudBusy)return;setCloudBusy(true);setCloudStatus('正在同步');setCloudError('');try{const current=workRef.current;let cloudId=current.cloudId;let cloudRevision=Number(current.cloudRevision||0);let document=cloudDocument(current);if(!cloudId){const created=await cloudFetch('/api/cloud/works',{method:'POST',body:JSON.stringify({sourceLocalId:current.id,name:current.name,document})});const remote=created.work;cloudId=remote.id;cloudRevision=remote.revision;if(created.alreadyExists){setCloudError('本地作品已迁移过，已连接到现有云端副本。');document=remote.document_json||document;}else{const assets=await uploadMissingPhotos(cloudId,current);if(assets){document={...document,cloudAssets:assets};const updated=await cloudFetch(`/api/cloud/works/${cloudId}`,{method:'PUT',body:JSON.stringify({expectedRevision:cloudRevision,name:current.name,document})});cloudRevision=updated.work.revision;}}}
+          else {const assets=await uploadMissingPhotos(cloudId,current);if(assets)document={...document,cloudAssets:assets};const updated=await cloudFetch(`/api/cloud/works/${cloudId}`,{method:'PUT',body:JSON.stringify({expectedRevision:cloudRevision,name:current.name,document})});cloudRevision=updated.work.revision;}
+          setField('cloudId',cloudId);setField('cloudRevision',cloudRevision);if(document.cloudAssets&&Object.keys(document.cloudAssets).length)setField('cloudAssets',document.cloudAssets);setCloudStatus('已同步');await loadCloudWorks();
+        }catch(e){setCloudStatus(e.message?.includes('冲突')?'存在版本冲突':'同步失败');setCloudError(e.message||'云端同步失败，本地作品仍保留。');}finally{setCloudBusy(false);}};
+        const migrateLocalWorks=async()=>{if(!cloudUser||cloudBusy)return;await flushSave().catch(()=>{});const local=await WorkLibrary.list();if(!local.length){setCloudError('当前没有可迁移的本地作品。');return;}if(!window.confirm(`将迁移 ${local.length} 个本地作品到当前账号，原件会保留。继续吗？`))return;setCloudBusy(true);setCloudStatus(`正在迁移 0 / ${local.length}`);setCloudError('');let failed=0;try{for(let i=0;i<local.length;i++){const record=local[i];try{const {photosBlob,photoBlob:legacyPhoto,thumbnail,...document}=record;const blobs=photosBlob||{minimal:legacyPhoto||null,visual:legacyPhoto||null,magazine:legacyPhoto||null};const created=await cloudFetch('/api/cloud/works',{method:'POST',body:JSON.stringify({sourceLocalId:record.id,name:record.name,document:{...document,photosBlob:null,photoBlob:null,thumbnail:null,cloudAssets:{}}})});if(!created.alreadyExists){const assets={};for(const id of ['minimal','visual','magazine'])if(blobs[id])assets[id]=await uploadCloudPhoto(created.work.id,blobs[id]);if(Object.keys(assets).length)await cloudFetch(`/api/cloud/works/${created.work.id}`,{method:'PUT',body:JSON.stringify({expectedRevision:created.work.revision,name:record.name,document:{...document,photosBlob:null,photoBlob:null,thumbnail:null,cloudAssets:assets}})});}}catch{failed++;}setCloudStatus(`正在迁移 ${i+1} / ${local.length}`);}setCloudStatus(failed?`迁移完成，${failed} 个失败`:'迁移完成');if(failed)setCloudError('失败项可再次点击迁移重试，本地原件未删除。');await loadCloudWorks();}finally{setCloudBusy(false);}};
+        const signIn=async()=>{const email=window.prompt('输入邮箱，接收登录链接');if(!email||!cloudClient)return;setCloudBusy(true);setCloudError('');const {error}=await cloudClient.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:location.origin+location.pathname}});setCloudBusy(false);if(error)setCloudError('登录邮件发送失败，请检查邮箱或服务配置。');else setCloudStatus('登录链接已发送，请查收邮箱。');};
+        const signOut=async()=>{if(cloudClient)await cloudClient.auth.signOut();setCloudUser(null);setCloudWorks([]);setCloudStatus('未登录');};
+
+        /* ----------------------------------------
+         * 额度与订单
+         *
+         * 账户凭证由服务端签发，前端只负责保存和随请求带上。
+         * 支付成功与否只看服务端：这里轮询的是「查单」接口，
+         * 不会因为浏览器的跳转地址里写着 success 就发额度。
+         * ---------------------------------------- */
+        const usageDelta=item=>{const n=Number(item.credits||0);if(['reserve','consume','refund','expire'].includes(item.type))return `-${Math.abs(n)}`;return n>0?`+${n}`:`${n}`;};
+        const billingHeaders=()=>billingToken?{'X-Billing-Token':billingToken}:{};
+        const billingFetch=async(path,options={})=>{const response=await fetch(path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{}),...billingHeaders()}});const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'额度服务暂时不可用。');return data;};
+        const loadBillingWallet=async()=>{try{const data=await billingFetch('/api/billing/wallet');setBillingWallet(data);return data;}catch(e){setBillingError(e.message);return null;}};
+        const loadBillingOrders=async()=>{try{const data=await billingFetch('/api/billing/orders');setBillingOrders(data.orders||[]);return data.orders||[];}catch(e){setBillingError(e.message);return [];}};
+        const queryBillingOrder=async no=>{
+          try{
+            const data=await billingFetch('/api/billing/orders/'+no+'?refresh=1');
+            setBillingOrders(current=>[data.order,...current.filter(item=>item.outTradeNo!==no)]);
+            if(data.order.status==='paid'){setBillingNotice('支付成功，额度已到账。');await loadBillingWallet();}
+            else if(data.order.status==='refunded')setBillingNotice('订单已退款。');
+            else if(data.query?.error)setBillingNotice(data.query.error);
+            else setBillingNotice('支付结果确认中：渠道还没返回成功通知，可以稍后再点查单。');
+            return data.order;
+          }catch(e){setBillingError(e.message);return null;}
+        };
+        const pollBillingOrder=async no=>{
+          if(billingPollRef.current.has(no))return;
+          billingPollRef.current.add(no);setBillingConfirming(no);
+          try{
+            for(let i=0;i<40;i++){
+              let data;
+              try{data=await billingFetch('/api/billing/orders/'+no+'?refresh=1');}catch(e){setBillingError(e.message);break;}
+              setBillingOrders(current=>[data.order,...current.filter(item=>item.outTradeNo!==no)]);
+              if(data.order.status==='paid'||data.order.status==='refunded'){
+                setBillingNotice(data.order.status==='paid'?'支付成功，额度已到账。':'订单已退款。');
+                await loadBillingWallet();
+                break;
+              }
+              await new Promise(resolve=>setTimeout(resolve,3000));
+            }
+          }finally{billingPollRef.current.delete(no);setBillingConfirming(null);await loadBillingWallet().catch(()=>{});}
+        };
+        const buyBillingProduct=async product=>{
+          if(billingBusy)return;
+          setBillingBusy(true);setBillingError('');setBillingNotice('');
+          try{
+            const data=await billingFetch('/api/billing/orders',{method:'POST',body:JSON.stringify({productId:product.id})});
+            setBillingOrders(current=>[data.order,...current.filter(item=>item.outTradeNo!==data.order.outTradeNo)]);
+            setBillingNotice('订单已创建，请在打开的支付页完成付款；完成后回到这里会自动确认。');
+            if(data.payUrl){const opened=window.open(data.payUrl,'_blank','noopener');if(!opened)setBillingNotice('浏览器拦截了新窗口，请允许弹窗后重新点击购买。');}
+            pollBillingOrder(data.order.outTradeNo);
+          }catch(e){setBillingError(e.message);}
+          finally{setBillingBusy(false);}
+        };
+        const initBilling=async()=>{
+          try{
+            const response=await fetch('/api/billing/config',{cache:'no-store'});
+            const config=await response.json();
+            setBillingConfig(config);
+            if(!config.enabled)return;
+            const accountResponse=await fetch('/api/billing/account',{method:'POST',headers:{...billingHeaders()}});
+            const account=await accountResponse.json().catch(()=>({}));
+            if(!accountResponse.ok)throw Error(account.error||'额度账户不可用。');
+            setBillingToken(account.token);
+            try{localStorage.setItem('vibecanvas-billing-token',account.token);}catch{}
+            await loadBillingWallet();
+            await loadBillingOrders();
+            const params=new URLSearchParams(window.location.search);
+            const orderNo=params.get('billingOrder')||params.get('out_trade_no');
+            if(orderNo){
+              setBillingOpen(true);
+              try{window.history.replaceState({},'',window.location.pathname);}catch{}
+              if(/^[A-Za-z0-9]{8,64}$/.test(orderNo))pollBillingOrder(orderNo);
+            }
+          }catch(e){setBillingError(e.message||'额度服务不可用。');}
+        };
+        useEffect(()=>{initBilling();},[]);
+        useEffect(()=>{
+          // 从支付页切回来时主动查一次单，避免用户以为丢了订单。
+          const onVisible=()=>{ if(document.visibilityState!=='visible')return; if(!billingToken)return; loadBillingWallet(); if(billingConfirming)queryBillingOrder(billingConfirming); };
+          document.addEventListener('visibilitychange',onVisible);
+          return ()=>document.removeEventListener('visibilitychange',onVisible);
+        },[billingToken,billingConfirming]);
+
+        const recordFromWork = current => {
+          const {photos:currentPhotos,...rest}=current;
+          const photosBlob={minimal:null,visual:null,magazine:null};
+          for(const id of ['minimal','visual','magazine']){
+            const item=currentPhotos?.[id];
+            if(!item) continue;
+            const blob=item.blob || item.file;
+            if(!(blob instanceof Blob)) throw Error('图片未保存：图片数据不可用，请重新选择或生成。');
+            photosBlob[id]=blob;
+          }
+          return {...rest,photosBlob,revision:revisionRef.current};
+        };
+        const loadList = async()=>{try{setLibraryList(await WorkLibrary.list());return true}catch(e){setSaveStatus('保存失败');setSaveError('作品库不可用，请检查浏览器存储设置。');return false}};
+        const flushSave = async()=>{
+          clearTimeout(saveTimerRef.current);
+          if(savePromiseRef.current)return savePromiseRef.current.then(()=>seqRef.current>savedSeqRef.current?flushSave():undefined);
+          if(!initializedRef.current || seqRef.current<=savedSeqRef.current)return;
+          if(conflictRef.current){setSaveStatus('保存失败');setSaveError('版本冲突：请从作品库重新打开，或先放弃当前修改。');throw Error('版本冲突：请从作品库重新打开，或先放弃当前修改。');}
+          savePromiseRef.current=(async()=>{while(seqRef.current>savedSeqRef.current){
+            const seq=seqRef.current,current=workRef.current;setSaveStatus('正在保存');setSaveError('');
+            try {const record=recordFromWork(current);const saved=await WorkLibrary.save(record,revisionRef.current);revisionRef.current=saved.revision;savedSeqRef.current=seq;try{localStorage.setItem('vibecanvas-active-work',saved.id)}catch{};channelRef.current?.postMessage({id:saved.id,revision:saved.revision});await loadList();}
+            catch(e){const message=e?.name==='QuotaExceededError'?'存储空间不足，图片和作品未完整保存。':e.message || '保存失败，请重试。';if(/冲突|版本不兼容/.test(message))conflictRef.current=true;setSaveStatus('保存失败');setSaveError(message);throw e;}
+          }if(Date.now()-(window.__vcLastSaveAt||0)>60000){window.__vcLastSaveAt=Date.now();Track.send('save');}setSaveStatus('已保存');})();
+          try{return await savePromiseRef.current}finally{savePromiseRef.current=null;}
+        };
+        const restoreWork = async record=>{
+          record=WorkLibrary.upgradeRecord(record); WorkLibrary.validateRecord(record); const restoredPhotos={minimal:null,visual:null,magazine:null};
+          for(const id of ['minimal','visual','magazine']){
+            const blob=record.photosBlob?.[id];
+            if(!blob) continue;
+            const url=URL.createObjectURL(blob);
+            try{const image=new Image();image.src=url;await image.decode();restoredPhotos[id]={url,blob,file:blob};}
+            catch{URL.revokeObjectURL(url);throw Error('作品图片损坏，无法打开。');}
+          }
+          const {photosBlob,photoBlob,...rest}=record;workVersion.current++;imageLock.current=false;setImageBusy(false);setImageStatus('');setImageError('');setWork({...rest,photos:restoredPhotos});revisionRef.current=record.revision;seqRef.current=0;savedSeqRef.current=0;conflictRef.current=false;setDirty(false);setTagsText((record.publishCopy?.tags||record.content.tags).join('，'));setError('');setExportError('');setSaveError('');setSaveStatus('已保存');try{localStorage.setItem('vibecanvas-active-work',record.id)}catch{}
+          Track.send('open_work'); // 只记「重新打开了作品」，不含作品名和正文
+        };
+        const beforeSwitch=async()=>{try{await flushSave();return true}catch(e){return window.confirm('当前作品保存失败：'+(e.message||'未知错误')+'。是否放弃未保存的修改并切换？')}};
+        const openWork=async id=>{if(!await beforeSwitch())return;try{const record=await WorkLibrary.get(id);if(!record)throw Error('作品不存在或已被删除。');await restoreWork(record);setLibraryOpen(false)}catch(e){setSaveError(e.message||'作品无法打开。');setSaveStatus('保存失败')}};
+        const openCloudWork=async remote=>{if(!await beforeSwitch())return;setCloudBusy(true);setCloudError('');try{const document=remote.document_json;let restored={...document,id:remote.source_local_id||crypto.randomUUID(),name:remote.name,createdAt:new Date(remote.created_at).getTime()||Date.now(),updatedAt:new Date(remote.updated_at).getTime()||Date.now(),revision:0,cloudId:remote.id,cloudRevision:remote.revision,photos:null,thumbnail:null,photosBlob:null};const cloudAssets=document.cloudAssets&&Object.keys(document.cloudAssets).length?document.cloudAssets:(document.cloudAsset?.path?{minimal:document.cloudAsset,visual:document.cloudAsset,magazine:document.cloudAsset}:{});const restoredBlobs={minimal:null,visual:null,magazine:null};for(const id of ['minimal','visual','magazine']){const asset=cloudAssets[id];if(!asset?.path)continue;const signed=await cloudFetch(`/api/cloud/works/${remote.id}/asset-sign`,{method:'POST',body:JSON.stringify({path:asset.path})});const response=await fetch(signed.url);if(!response.ok)throw Error('云端图片无法读取。');restoredBlobs[id]=await response.blob();}await restoreWork({...restored,photosBlob:restoredBlobs,cloudAssets});setLibraryOpen(false);setCloudStatus('已同步');}catch(e){setCloudError(e.message||'云端作品无法打开。');}finally{setCloudBusy(false);}};
+        const createWork=async()=>{if(!await beforeSwitch())return;workVersion.current++;imageLock.current=false;setImageBusy(false);setWork(newWork());revisionRef.current=0;seqRef.current=0;savedSeqRef.current=0;conflictRef.current=false;setDirty(false);setTagsText('校园生活');setSaveStatus('新作品');setSaveError('');setLibraryOpen(false);try{localStorage.removeItem('vibecanvas-active-work')}catch{}};
+        const renameWork=async record=>{const next=window.prompt('输入作品名称',record.name);if(next===null||!next.trim())return;if(record.id===workRef.current.id){setField('name',next.trim().slice(0,50));return}try{WorkLibrary.validateRecord(record);await WorkLibrary.save({...record,name:next.trim().slice(0,50)},record.revision);await loadList();channelRef.current?.postMessage({id:record.id,revision:record.revision+1})}catch(e){setSaveStatus('保存失败');setSaveError(e.message)}};
+        const copyWork=async record=>{try{if(record.id===workRef.current.id){await flushSave();record=await WorkLibrary.get(record.id)}const copy=WorkLibrary.cloneRecord(record,crypto.randomUUID());await WorkLibrary.save(copy,0);await loadList()}catch(e){setSaveStatus('保存失败');setSaveError(e.message||'复制失败。')}};
+        const deleteWork=async record=>{if(!window.confirm('确定删除「'+(record.name||'这个作品')+'」吗？'))return;try{if(record.id===workRef.current.id){await flushSave();record=await WorkLibrary.get(record.id)}await WorkLibrary.remove(record.id,record.revision);channelRef.current?.postMessage({id:record.id,deleted:true});if(record.id===workRef.current.id){workVersion.current++;imageLock.current=false;setImageBusy(false);setWork(newWork());revisionRef.current=0;seqRef.current=0;savedSeqRef.current=0;conflictRef.current=false;setDirty(false);setSaveStatus('新作品');try{localStorage.removeItem('vibecanvas-active-work')}catch{}}await loadList()}catch(e){setSaveStatus('保存失败');setSaveError(e.message||'删除失败。')}};
+        const toggleFeedback=()=>{
+          const next=!feedbackOpen;setFeedbackOpen(next);
+          if(next){setFeedbackStatus('');Track.send('feedback_open');}
+        };
+        const submitFeedback=async()=>{
+          if(feedbackBusy)return;
+          if(!feedbackRating&&!feedbackText.trim()){setFeedbackStatus('请先点一个分数，或写一句话。');return;}
+          setFeedbackBusy(true);setFeedbackStatus('正在发送…');
+          try{
+            const response=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:feedbackRating||null,message:feedbackText.trim()})});
+            const data=await response.json();
+            if(!response.ok)throw Error(data.error||'反馈未能发送，请稍后重试。');
+            setFeedbackStatus('已收到，谢谢！');setFeedbackRating(0);setFeedbackText('');
+          }catch(err){setFeedbackStatus(err.message==='Failed to fetch'?'无法连接服务，请稍后重试。':(err.message||'反馈未能发送，请稍后重试。'));}
+          finally{setFeedbackBusy(false);}
+        };
+        useEffect(()=>{let canceled=false;(async()=>{try{if(!await loadList())return;let id;try{id=localStorage.getItem('vibecanvas-active-work')}catch{}if(id){const record=await WorkLibrary.get(id);if(record&&!canceled)await restoreWork(record);else if(!canceled)setSaveStatus('新作品')}if(!canceled && !id)setSaveStatus('新作品')}catch(e){if(!canceled){setSaveStatus('保存失败');setSaveError(e.message||'作品库不可用。')}}finally{initializedRef.current=true;if(!canceled)setStorageReady(true)}})();return()=>{canceled=true;clearTimeout(saveTimerRef.current)}},[]);
+        useEffect(()=>{let disposed=false;const boot=async()=>{try{const config=await (await fetch('/api/auth/config',{cache:'no-store'})).json();if(disposed)return;setCloudConfig(config);if(!config.configured||!window.supabase){setCloudStatus('云端未配置');return;}const client=window.supabase.createClient(config.url,config.anonKey);setCloudClient(client);const session=(await client.auth.getSession()).data.session;if(session?.user){setCloudUser(session.user);setCloudStatus('已登录');}const listener=client.auth.onAuthStateChange((_event,next)=>{if(next?.user){setCloudUser(next.user);setCloudStatus('已登录');}else{setCloudUser(null);setCloudWorks([]);setCloudStatus('未登录');}});return()=>listener.data.subscription.unsubscribe();}catch{if(!disposed)setCloudStatus('云端不可用');}};let cleanup;boot().then(fn=>{cleanup=fn});return()=>{disposed=true;cleanup?.();};},[]);
+        useEffect(()=>{if(cloudUser)loadCloudWorks();},[cloudUser]);
+        useEffect(()=>{if(typeof BroadcastChannel==='undefined')return;const channel=new BroadcastChannel('vibecanvas-works');channelRef.current=channel;channel.onmessage=e=>{const m=e.data;if(m?.id===workRef.current.id && (m.deleted || m.revision>revisionRef.current)){conflictRef.current=true;setSaveStatus('保存失败');setSaveError('其他标签页修改了这个作品；请从作品库重新打开，避免覆盖。')}loadList()};return()=>{channel.close();channelRef.current=null}},[]);
+        useEffect(()=>{if(!initializedRef.current||seqRef.current<=savedSeqRef.current)return;setSaveStatus(conflictRef.current?'保存失败':'待保存');clearTimeout(saveTimerRef.current);saveTimerRef.current=setTimeout(()=>{flushSave().catch(()=>{})},700);return()=>clearTimeout(saveTimerRef.current)},[work]);
+        useEffect(()=>{if(!initializedRef.current||seqRef.current<=savedSeqRef.current)return;let canceled=false;const timer=setTimeout(async()=>{try{const canvas=document.createElement('canvas');canvas.width=180;canvas.height=240;const ctx=canvas.getContext('2d');ctx.fillStyle='#e3ecd9';ctx.fillRect(0,0,180,240);if(firstPhoto?.url){const img=new Image();img.src=firstPhoto.url;await img.decode();const scale=Math.max(160/img.width,120/img.height);ctx.save();ctx.beginPath();ctx.rect(10,10,160,120);ctx.clip();ctx.drawImage(img,90-img.width*scale/2,70-img.height*scale/2,img.width*scale,img.height*scale);ctx.restore()}ctx.fillStyle='#25382b';ctx.font='bold 15px sans-serif';const thumbTitle=isCarousel?(work.pages?.find(page=>page.id===work.activePageId)?.title||'未命名作品'):(work.content.title||'未命名作品');for(let i=0;i<thumbTitle.length;i+=9)ctx.fillText(thumbTitle.slice(i,i+9),12,157+Math.floor(i/9)*20);const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));if(!canceled&&blob)setField('thumbnail',blob)}catch{}},2200);return()=>{canceled=true;clearTimeout(timer)}},[work.id,work.content.title,work.pages,work.activePageId,firstPhoto?.url,work.selectedStyleId,work.paletteId,work.crops,work.hasResult,isCarousel]);
+
+        const effectivePaletteId=isCarousel?(activePage?.paletteId||paletteId):paletteId;
+        const palette = useMemo(
+          () => PALETTES.find((item) => item.id === effectivePaletteId) || PALETTES[0],
+          [effectivePaletteId]
+        );
+
+        const selectedStyle = useMemo(
+          () => STYLES.find((item) => item.id === (isCarousel?(activePage?.styleId||selectedStyleId):selectedStyleId)),
+          [selectedStyleId,isCarousel,activePage?.styleId]
+        );
+
+        const clearResult = () => { setHasResult(false); setSelectedStyleId(null); setDirty(false); setContent({title:"你的校园灵感",subtitle:"让每一个好点子，都值得被看见",description:"从一个想法开始，创造属于你的校园故事。",tags:["校园生活"],event:{time:null,location:null,organizer:null}}); setTagsText("校园生活"); };
+        const handleModeChange = next => {
+          if (next===mode) return;
+          if (mode==='upload' && firstPhoto && dirty && !window.confirm('切换图片来源将清除当前照片和编辑内容，是否继续？')) return;
+          workVersion.current++; imageLock.current=false; setImageBusy(false); setImageStatus(""); setImageError(""); setImagePrompt("");
+          if (firstPhoto) {setPhotos({minimal:null,visual:null,magazine:null}); if(mode==='upload') clearResult();}
+          setMode(next);
+        };
+        const handleDocumentTypeChange = next => {
+          if(next===work.documentType)return;
+          if(work.hasResult && !window.confirm('切换内容形式会清除当前生成结果，是否继续？'))return;
+          if(next==='single'){setField('documentType','single');setField('pages',null);setField('publishCopy',null);setField('activePageId',null);setHasResult(false);}else{setField('documentType','carousel');setHasResult(false);setField('selectedStyleId',null);}
+        };
+        const startImages = async (description, version, knownEn) => {
+          if (imageLock.current || !description.trim()) return;
+          imageLock.current=true; setImageBusy(true); setImageStatus("正在生成配图"); setImageError("");
+          const styleIds=['minimal','visual','magazine'];
+          const clean=description.trim();
+          // 本地画图模型的文本编码器读不懂中文：直接送中文只会得到一张跟描述无关的图。
+          // 所以先拿到英文版——生成文案时模型已经给过一段，同一段中文就直接复用；改过就现翻。
+          let english=typeof knownEn==='string'&&knownEn.trim()?knownEn.trim():'';
+          if(!english&&workRef.current.imagePromptEnFor===clean)english=workRef.current.imagePromptEn||'';
+          let warning='';
+          if(!english){
+            setImageStatus('正在准备提示词');
+            try{
+              const r=await fetch('/api/image-prompt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({description:clean})});
+              const data=await r.json(); if(!r.ok)throw Error(data.error||'提示词翻译失败。');
+              english=String(data.promptEn||'').trim(); if(!english)throw Error('提示词翻译失败。');
+              if(workVersion.current===version){setField('imagePromptEn',english);setField('imagePromptEnFor',clean);}
+            }catch(err){
+              english='';
+              warning='英文提示词翻译失败，本次用中文描述生成，图片可能与描述不符：'+(err.message==='Failed to fetch'?'无法连接本地服务。':err.message||'请稍后重试。');
+            }
+            if(workVersion.current!==version){imageLock.current=false;setImageBusy(false);return;}
+            setImageStatus('正在生成配图');
+          }
+          let prompts;
+          try { prompts=ImagePrompts.buildPrompts(clean, english||undefined); }
+          catch(err){imageLock.current=false;setImageBusy(false);setImageStatus('配图失败');setImageError(err.message||'配图描述不可用。');return;}
+          try {
+            const authToken=await cloudToken();
+            // 配图任务按额度账户归属，所以每个任务请求都要带上额度凭证。
+            const authHeaders={...(billingToken?{'X-Billing-Token':billingToken}:{}),...(authToken?{Authorization:`Bearer ${authToken}`}:{})};
+            const imageStartedAt=Date.now();Track.send('image_start',{mode:'ai',count:styleIds.length});
+            // 三张图 = 三个任务、三次额度。逐个创建，避免撞上每分钟请求上限时全部失败。
+            const tasks=[];
+            for(const styleId of styleIds){
+              const response=await fetch('/api/image-tasks',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders},body:JSON.stringify({idempotencyKey:crypto.randomUUID(),prompt:prompts[styleId]})});
+              const created=await response.json(); if(!response.ok) throw Error(created.error || '无法创建配图任务。');
+              tasks.push({styleId,id:created.id});
+            }
+            let finished=0;
+            const collect=async task=>{
+              while(workVersion.current===version){
+                const r=await fetch('/api/image-tasks/'+task.id,{cache:'no-store',headers:authHeaders});const data=await r.json();if(!r.ok)throw Error(data.error||'无法查询配图任务。');
+                if(data.status==='failed'||data.status==='uncertain'||data.status==='cancelled')throw Error(data.error||'配图任务未完成，请确认后手动重试。');
+                if(data.status==='completed'){
+                  const imageResponse=await fetch(data.imageUrl,{cache:'no-store',headers:authHeaders});if(!imageResponse.ok)throw Error('生成的图片已过期或无法读取。');
+                  const blob=await imageResponse.blob();const local=URL.createObjectURL(blob);
+                  try{const img=new Image();img.src=local;await img.decode();}
+                  catch(err){URL.revokeObjectURL(local);throw err;}
+                  if(workVersion.current!==version){URL.revokeObjectURL(local);return;}
+                  setStylePhoto(task.styleId,{url:local,blob});
+                  setCrops(current=>({...current,[task.styleId]:{x:50,y:50,zoom:1}}));
+                  finished++;setImageStatus(`正在生成配图 ${finished} / ${styleIds.length}`);
+                  return;
+                }
+                await new Promise(resolve=>setTimeout(resolve,1800));
+              }
+            };
+            // 一张失败不该把已经成功的两张一起丢掉，所以用 allSettled 分开记。
+            const outcomes=await Promise.allSettled(tasks.map(collect));
+            if(workVersion.current!==version)return;
+            const failed=tasks.filter((task,index)=>outcomes[index].status==='rejected');
+            if(!failed.length){
+              Track.send('image_success',{imagesOk:tasks.length,imagesFailed:0,durationMs:Date.now()-imageStartedAt});
+              setImageStatus('三张配图已完成');setImageError(warning);
+            }
+            else{
+              const first=outcomes[tasks.indexOf(failed[0])].reason;
+              Track.send('image_fail',{imagesOk:tasks.length-failed.length,imagesFailed:failed.length,errorKind:errorKind(first),durationMs:Date.now()-imageStartedAt});
+              setImageStatus(failed.length===tasks.length?'配图失败':`已完成 ${tasks.length-failed.length} / ${tasks.length}`);
+              setImageError(`${warning?warning+' ':''}${failed.length} 张未生成（${failed.map(t=>t.styleId).join('、')}）：${(first?.message==='Failed to fetch'?'连接中断，本次请求可能已被服务商受理，请确认后再手动重试。':first?.message)||'请手动重试。'}`);
+            }
+          } catch(err){
+            Track.send('image_fail',{imagesOk:0,imagesFailed:styleIds.length,errorKind:errorKind(err)});
+            if(/额度不足|额度账户|额度凭证/.test(err.message||'')){setBillingOpen(true);loadBillingWallet();}
+            if(workVersion.current===version){setImageStatus('配图失败');setImageError((err.message==='Failed to fetch'?'连接中断，本次请求可能已被服务商受理，请确认后再手动重试。':err.message)||'配图失败，请手动重试。');}
+          }
+          finally {if(workVersion.current===version){imageLock.current=false;setImageBusy(false);}}
+        };
+        const handlePhoto = async (file) => {
+          if (dirty && !window.confirm("替换照片将清除当前编辑内容，是否继续？")) return;
+          if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {setError("请选择 JPEG、PNG 或 WebP 照片。");return;}
+          if (file.size > 8*1024*1024) {setError("照片超过 8MB，请选择较小的照片。");return;}
+          setPhotoLoading(true); let url=URL.createObjectURL(file);
+          try { const image=new Image(); image.src=url; await image.decode(); if(!image.naturalWidth || image.naturalWidth*image.naturalHeight>40000000) throw Error(); setPhotos({minimal:{url,file},visual:{url,file},magazine:{url,file}}); url=null; setCrops({minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}}); clearResult(); setError(""); }
+          catch {setError("照片无法读取，或尺寸超过 4000 万像素。");} finally {if(url)URL.revokeObjectURL(url);setPhotoLoading(false);}
+        };
+        const handleRemovePhoto=()=>{if(dirty && !window.confirm("移除照片将清除当前编辑内容，是否继续？"))return;setPhotos({minimal:null,visual:null,magazine:null});clearResult();setError("");};
+        const regenerateContent=async(scope)=>{
+          if(requestRef.current||generating)return;
+          if(scope==='page'&&!isCarousel)return;
+          const message=scope==='page'?'重新生成当前页只会覆盖当前页文字，并再次调用文本模型。继续吗？':'重新生成文案会覆盖当前作品中的文字，并再次调用文本模型。继续吗？';
+          if(!window.confirm(message))return;
+          const version=++workVersion.current;requestRef.current=true;setGenerating(true);setGenerationStep(1);setError('');
+          try{
+            let image;
+            if(mode==='upload'&&firstPhoto?.file){const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('无法读取照片，请重新选择。'));reader.readAsDataURL(firstPhoto.file);});image={type:firstPhoto.file.type,data:dataUrl.split(',')[1]};}
+            setGenerationStep(2);
+            const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt.trim(),image,needImagePrompt:false,mode:isCarousel?'carousel':undefined}),signal:AbortSignal.timeout(50000)});
+            const data=await response.json();if(!response.ok)throw Error(data.error||'重新生成失败，请重试。');
+            if(workVersion.current!==version)return;setGenerationStep(3);
+            if(isCarousel){
+              if(scope==='page'){const index=work.pages.findIndex(page=>page.id===work.activePageId);const next=data.pages?.[Math.min(Math.max(index,0),data.pages.length-1)];if(!next)throw Error('模型未返回可用页面。');pageEdit(work.activePageId,{title:next.title,subtitle:next.subtitle,body:next.body,tags:next.tags||[]});}
+              else {setField('content',data);setField('publishCopy',data.publishCopy);setTagsText((data.publishCopy?.tags||data.tags).join('，'));}
+            }else{setContent(data);setTagsText(data.tags.join('，'));}
+            setDirty(false);setCopyState('');
+          }catch(err){setError(err.name==='TimeoutError'||err.name==='AbortError'?'生成超时，请重试。':err.message||'重新生成失败，请重试。');}
+          finally{requestRef.current=false;setGenerating(false);setGenerationStep(0);}
+        };
+        const handleGenerate = useCallback(async () => {
+          const cleanPrompt = prompt.trim();
+          if (requestRef.current) return;
+          if (!cleanPrompt && !(mode==="upload" && firstPhoto)) { setError("请输入活动主题或上传照片。"); return; }
+          if (dirty && !window.confirm("重新生成将覆盖你修改的文案，是否继续？")) return;
+          const version=++workVersion.current;
+          requestRef.current = true; setGenerating(true); setGenerationStep(1); setError(""); setExportError(""); setImageStatus(""); setImageError("");
+          const startedAt = Date.now(); Track.send("generate_start", { mode, documentType: isCarousel ? "carousel" : "single" });
+          try {
+            let image; if(mode==="upload" && firstPhoto) {const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("无法读取照片，请重新选择。"));reader.readAsDataURL(firstPhoto.file);}); image={type:firstPhoto.file.type,data:dataUrl.split(",")[1]};}
+            setGenerationStep(2);
+            const response = await fetch("/api/generate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({prompt:cleanPrompt,image,needImagePrompt:mode==="ai",mode:isCarousel?"carousel":undefined}), signal:AbortSignal.timeout(50000)});
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "生成失败，请重试。");
+            if (!data || typeof data.title !== "string" || !Array.isArray(data.tags) || !data.event || (isCarousel && (!Array.isArray(data.pages)||data.pages.length<3))) throw new Error("返回的文案格式不正确，请重试。");
+            setGenerationStep(3);
+            if(workVersion.current!==version)return;
+            if(isCarousel){const defaultCrop={minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}};const pages=data.pages.map(page=>({...page,id:crypto.randomUUID(),crops:structuredClone(defaultCrop),photoBlob:null}));setField('content',data);setField('pages',pages);setField('publishCopy',data.publishCopy);setField('activePageId',pages[0].id);setField('selectedStyleId','minimal');}else setContent(data); setTagsText((data.publishCopy?.tags||data.tags).join("，")); setHasResult(true); setDirty(false); setCopyState("");
+            if(mode==="ai"){setImagePrompt(data.imagePrompt);setField('imagePromptEn',data.imagePromptEn||'');setField('imagePromptEnFor',String(data.imagePrompt||'').trim());startImages(data.imagePrompt,version,data.imagePromptEn);}
+            Track.send("generate_success", { mode, documentType: isCarousel ? "carousel" : "single", durationMs: Date.now() - startedAt, pageCount: isCarousel ? data.pages.length : 1 });
+          } catch (err) { Track.send("generate_fail", { mode, documentType: isCarousel ? "carousel" : "single", durationMs: Date.now() - startedAt, errorKind: errorKind(err) }); setError(err.name === "TimeoutError" || err.name === "AbortError" ? "生成超时，请检查网络后重试。" : err instanceof SyntaxError ? "服务返回的内容格式不正确，请重试。" : (err.message === "Failed to fetch" ? "无法连接本地服务，请确认服务已启动后重试。" : err.message)); }
+          finally {requestRef.current = false; setGenerating(false); setGenerationStep(0);}
+        }, [prompt, dirty, firstPhoto, mode, isCarousel, content]);
+
+        const handleEdit = (field, value) => {
+          // 编辑事件按 15 秒节流，避免敲一次字发一条。
+          if (Date.now() - (window.__vcLastEditAt || 0) > 15000) { window.__vcLastEditAt = Date.now(); Track.send("edit", { surface: "sidebar" }); }
+          setDirty(true); setCopyState("");
+          if (field === "tags") {
+            const parts=value.replace(/#/g,"").split(/[,，]/).slice(0,4).map(t=>t.slice(0,10));
+            setTagsText(parts.join("，")); setContent(current=>({...current,tags:parts.map(t=>t.trim()).filter(Boolean)}));
+          } else setContent(current=>({...current,[field]:value}));
+        };
+        const pageEdit=(id,patch)=>setField('pages',current=>(current||[]).map(page=>page.id===id?{...page,...patch}:page));
+        const selectPage=id=>{setField('activePageId',id);setExportError('');};
+        const addPage=()=>{if(!isCarousel||work.pages.length>=6)return;const page={id:crypto.randomUUID(),type:'content',title:'新内容页',subtitle:'继续分享一个发现',body:'补充这一页的校园故事，让内容自然推进。',tags:['校园生活'],crops:{minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}},photoBlob:null};const pages=[...work.pages];pages.splice(Math.max(1,pages.length-1),0,page);setField('pages',pages);setField('activePageId',page.id);setHasResult(true);};
+        const copyPage=()=>{if(!isCarousel||!activePage||work.pages.length>=6)return;const copy={...structuredClone(activePage),id:crypto.randomUUID(),type:'content',title:activePage.title+' 副本'};const index=work.pages.findIndex(page=>page.id===activePage.id);const pages=[...work.pages];pages.splice(index+1,0,copy);setField('pages',pages);setField('activePageId',copy.id);};
+        const deletePage=()=>{if(!isCarousel||!activePage||work.pages.length<=3)return;if(!window.confirm('删除当前页面？'))return;const index=work.pages.findIndex(page=>page.id===activePage.id);const pages=work.pages.filter(page=>page.id!==activePage.id);setField('pages',pages);setField('activePageId',pages[Math.max(0,index-1)].id);};
+        const movePage=(direction)=>{if(!isCarousel||!activePage)return;const index=work.pages.findIndex(page=>page.id===activePage.id),next=index+direction;if(next<=0||next>=work.pages.length-1)return;const pages=[...work.pages];[pages[index],pages[next]]=[pages[next],pages[index]];setField('pages',pages);};
+        const activeCrops=isCarousel?(activePage?.crops||crops):crops;
+        const layoutWarnings=getLayoutWarnings(content,{photo:firstPhoto,mode,imageBusy,isCarousel});
+
+        const handleCopy = useCallback(async () => {
+          const text = [content.title, content.subtitle, content.description, ...Object.values(content.event).filter(Boolean), content.tags.map(tag=>"#"+tag).join(" ")].filter(Boolean).join("\n\n");
+          try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); } else { const field = document.createElement("textarea"); field.value = text; field.style.position = "fixed"; field.style.left = "-10000px"; document.body.appendChild(field); field.select(); const copied = document.execCommand("copy"); field.remove(); if (!copied) throw new Error("Copy unavailable"); } setCopyState("done"); } catch (err) { setCopyState("error"); }
+        }, [content]);
+        const handleDownload = useCallback(async () => {
+          if (!exportRef.current || !selectedStyle) return;
+          if (photoLoading) {setExportError("照片仍在加载，请稍候。");return;}
+
+          if (!window.html2canvas) {
+            setExportError("导出工具加载失败，请检查网络后刷新页面重试。");
+            return;
+          }
+
+          setDownloading(true);
+          setExportError("");
+
+          try {
+            if (document.fonts && document.fonts.ready) {
+              await document.fonts.ready;
+            }
+
+            const exportPhoto=photos[selectedStyle.id];
+            if (exportPhoto) {const image=new Image();image.src=exportPhoto.url;await image.decode();}
+            const canvas = await window.html2canvas(exportRef.current, {
+              backgroundColor: null,
+              scale: 2,
+              useCORS: true,
+              logging: false,
+            });
+
+            const link = document.createElement("a");
+            const safeTitle = (content.title || "校园创意")
+              .replace(/[\\/:*?"<>|]/g, "")
+              .slice(0, 20);
+
+            link.download = `VibeCanvas-${safeTitle}-${selectedStyle.name}.png`;
+            link.href = canvas.toDataURL("image/png");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            Track.send("export", { target: "single", styleId: selectedStyle.id });
+          } catch (downloadError) {
+            console.error(downloadError);
+            setExportError("导出失败，请刷新页面后重试。");
+          } finally {
+            setDownloading(false);
+          }
+        }, [content.title, selectedStyle, photos, photoLoading]);
+        const waitForPoster = async()=>{if(document.fonts?.ready)await document.fonts.ready;const exportPhoto=selectedStyle?photos[selectedStyle.id]:null;if(exportPhoto?.url){const image=new Image();image.src=exportPhoto.url;await image.decode();}await new Promise(requestAnimationFrame);};
+        const capturePoster = async()=>{await waitForPoster();return window.html2canvas(exportRef.current,{backgroundColor:null,scale:1.8,useCORS:true,logging:false,width:600,height:800});};
+        const handleDownloadPage = async()=>{if(!window.html2canvas||!selectedStyle)return;setDownloading(true);setExportError('');try{const canvas=await capturePoster();const link=document.createElement('a');const safe=(content.title||'校园创意').replace(/[\\/:*?"<>|]/g,'').slice(0,20);link.download=`VibeCanvas-${safe}-第${isCarousel?(work.pages.findIndex(page=>page.id===work.activePageId)+1):1}页.png`;link.href=canvas.toDataURL('image/png');link.click();Track.send('export',{target:'page',styleId:selectedStyle.id});}catch{setExportError('当前页导出失败，请确认图片和字体已加载后重试。')}finally{setDownloading(false);}};
+        const handleDownloadZip = async()=>{if(!isCarousel||!window.JSZip||!selectedStyle)return;const original=work.activePageId;setDownloading(true);setExportError('');try{const zip=new JSZip();for(let i=0;i<work.pages.length;i++){const page=work.pages[i];setExportError(`正在导出第 ${i+1} / ${work.pages.length} 页…`);setField('activePageId',page.id);await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));const canvas=await capturePoster();const data=canvas.toDataURL('image/png').split(',')[1];zip.file(`${String(i+1).padStart(2,'0')}-${(page.title||'页面').replace(/[\\/:*?"<>|]/g,'').slice(0,24)}.png`,data,{base64:true});}const blob=await zip.generateAsync({type:'blob',compression:'STORE'});const link=document.createElement('a');link.download=`VibeCanvas-${(work.name||'小红书图文').replace(/[\\/:*?"<>|]/g,'').slice(0,24)}.zip`;link.href=URL.createObjectURL(blob);link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);setExportError('整组导出完成');Track.send('export',{target:'zip',styleId:selectedStyle.id,pageCount:work.pages.length});}catch(err){setExportError(`批量导出失败：${err.message||'请重试'}。`)}finally{setField('activePageId',original);setDownloading(false);}};
+
+        return (
+          <div id="top" className="min-h-screen bg-[#f8f9f7]">
+            <Header />
+
+            <main className="mx-auto max-w-[1440px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-12">
+              <fieldset disabled={!storageReady} aria-busy={!storageReady}>
+              <div className="mb-7 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                <div><p className="text-sm font-semibold text-white">{work.name} <span role="status" className="ml-2 text-xs font-normal text-[#b6b8cc]">{saveStatus}</span></p><p className="mt-1 text-[11px]">本地作品保存在当前浏览器；云端状态：{cloudStatus}。清除浏览器数据不会删除已同步作品。</p>{saveError && <p role="alert" className="mt-1 text-xs text-[#f1a995]">{saveError} {firstPhoto ? '本次图片未保存，请重试。' : ''}</p>}{cloudError && <p role="alert" className="mt-1 text-xs text-[#f1a995]">{cloudError}</p>}{cloudUser && <p className="mt-1 text-[11px] text-[#a7abbd]">账号：{cloudUser.email||'已登录'} · 云端作品 {cloudWorks.length} 个 · 当前作品 {work.cloudId?'已关联':'仅本地'}</p>}</div>
+                <div className="flex flex-wrap gap-2">{billingConfig?.enabled && <button type="button" onClick={()=>{const next=!billingOpen;setBillingOpen(next);if(next){loadBillingWallet();loadBillingOrders();}}} className="secondary-action rounded-lg px-3 py-2 text-xs">{billingWallet?`额度 ${billingWallet.available}`:'额度与订单'}</button>}<button type="button" onClick={()=>flushSave().catch(()=>{})} className="secondary-action rounded-lg px-3 py-2 text-xs">重试保存</button><button type="button" disabled={generating || imageBusy || photoLoading} onClick={()=>{loadList();setLibraryOpen(!libraryOpen)}} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">作品库</button><button type="button" disabled={generating || imageBusy || photoLoading} onClick={createWork} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">新作品</button>{cloudUser?<><button type="button" disabled={cloudBusy} onClick={()=>syncCurrent()} className="primary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">{cloudBusy?'同步中…':'同步当前作品'}</button><button type="button" disabled={cloudBusy} onClick={migrateLocalWorks} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">迁移本地作品（{libraryList.length} 个）</button><button type="button" disabled={cloudBusy} onClick={signOut} className="secondary-action rounded-lg px-3 py-2 text-xs">退出 {cloudUser.email||''}</button></>:<button type="button" disabled={cloudBusy||cloudStatus==='云端未配置'} onClick={signIn} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">登录并同步</button>}</div>
+              </div>
+              {billingOpen && billingConfig?.enabled && (
+                <section aria-label="额度与订单" className="editor-panel mb-7 rounded-2xl border border-violet-300/20 p-5">
+                  <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-semibold">额度与订单</h2>
+                      <p className="mt-1 text-xs text-[#a7abbd]">1 额度 = 1 张 AI 配图；一次「AI 配图」默认生成 3 张，消耗 3 额度。文字生成不计额度。</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="glass-chip rounded-full border px-3 py-1.5 text-xs">可用 {billingWallet?billingWallet.available:'—'}{billingWallet&&billingWallet.reserved>0?` · 预占 ${billingWallet.reserved}`:''}</span>
+                      <button type="button" onClick={()=>setBillingOpen(false)} className="secondary-action rounded-lg px-3 py-2 text-xs">关闭</button>
+                    </div>
+                  </div>
+                  {billingConfig.paused && <p className="mb-3 rounded-xl border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">生成服务已暂停，暂停期间无法发起新的配图或文字生成。</p>}
+                  {billingError && <p role="alert" className="mb-3 rounded-xl border border-red-300/30 bg-red-400/10 px-3 py-2 text-xs text-red-200">{billingError}</p>}
+                  {billingNotice && <p role="status" className="mb-3 rounded-xl border border-emerald-300/30 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">{billingNotice}</p>}
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {billingConfig.products.map(product=>(
+                      <div key={product.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="text-sm font-semibold text-white">{product.title}</p>
+                          <p className="text-lg font-semibold text-white">¥{product.price}</p>
+                        </div>
+                        <p className="mt-1 text-xs text-[#a7abbd]">{product.description}</p>
+                        <p className="mt-2 text-xs text-[#c2b9fb]">{product.credits} 额度 · {product.validity}</p>
+                        <button type="button" disabled={billingBusy||billingConfig.paused} onClick={()=>buyBillingProduct(product)} className="primary-action mt-3 w-full rounded-lg px-3 py-2 text-xs disabled:opacity-50">{billingBusy?'正在创建订单…':`购买 ¥${product.price}`}</button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">订单</h3><button type="button" onClick={()=>loadBillingOrders()} className="secondary-action rounded-lg px-2 py-1 text-[11px]">刷新</button></div>
+                      {(!billingOrders||!billingOrders.length)?<p className="text-xs text-[#a7abbd]">还没有订单。</p>:<div className="space-y-2">{billingOrders.slice(0,8).map(order=>(
+                        <div key={order.outTradeNo} className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
+                          <div className="flex items-center justify-between gap-2"><span className="font-semibold text-white">{order.productTitle}</span><span className={order.status==='paid'?'text-emerald-300':order.status==='pending'?'text-amber-200':'text-[#a7abbd]'}>{billingConfirming===order.outTradeNo?'确认中…':order.statusText}</span></div>
+                          <p className="mt-1 text-[#a7abbd]">¥{order.amount} · {order.credits} 额度 · {new Date(order.createdAt).toLocaleString()}</p>
+                          <p className="mt-1 break-all text-[#7b8095]">{order.outTradeNo}{order.refund?` · 退款收回 ${order.refund.removed} 额度`:''}</p>
+                          {order.status==='pending' && <button type="button" onClick={()=>queryBillingOrder(order.outTradeNo)} className="secondary-action mt-2 rounded-lg px-2 py-1 text-[11px]">查单</button>}
+                        </div>
+                      ))}</div>}
+                    </div>
+                    <div>
+                      <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">额度记录</h3><button type="button" onClick={()=>loadBillingWallet()} className="secondary-action rounded-lg px-2 py-1 text-[11px]">刷新</button></div>
+                      {!billingWallet?.usage?.length?<p className="text-xs text-[#a7abbd]">还没有额度变动。</p>:<div className="space-y-1.5">{billingWallet.usage.slice(0,12).map(item=>(
+                        <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-[11px]">
+                          <span className="text-[#d8daea]">{item.typeText}</span>
+                          <span className="text-[#a7abbd]">{usageDelta(item)}</span>
+                          <span className="text-[#7b8095]">{new Date(item.at).toLocaleString()}</span>
+                        </div>
+                      ))}</div>}
+                    </div>
+                  </div>
+                  <p className="mt-4 text-[11px] leading-5 text-[#7b8095]">额度绑在当前浏览器的凭证上，清理浏览器数据或换设备后无法找回。支付结果以服务端验签的通知或主动查单为准，支付成功跳转页不会直接发放额度。</p>
+                </section>
+              )}
+              {libraryOpen && <section aria-label="本地作品库" className="editor-panel mb-7 rounded-2xl border border-white/10 p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold">本地作品库</h2><button type="button" onClick={()=>setLibraryOpen(false)} className="secondary-action rounded-lg px-3 py-2 text-xs">关闭</button></div>{libraryList.length===0 ? <p className="text-sm">还没有已保存的作品。</p> : <div className="grid gap-3 md:grid-cols-2">{libraryList.map(item=><div key={item.id} className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"><WorkThumbnail blob={item.thumbnail instanceof Blob ? item.thumbnail : null}/><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{typeof item.name==='string'?item.name:'损坏的作品'}</p><p className="mt-1 text-[11px]">{Number.isFinite(item.updatedAt)?new Date(item.updatedAt).toLocaleString():'时间不可用'}</p><div className="mt-3 flex flex-wrap gap-2">{[['打开',()=>openWork(item.id)],['重命名',()=>renameWork(item)],['复制',()=>copyWork(item)],['删除',()=>deleteWork(item)]].map(([label,fn])=><button key={label} type="button" aria-label={label+' '+(item.name||'作品')} onClick={fn} disabled={generating || imageBusy || photoLoading} className="secondary-action rounded-lg px-2 py-1.5 text-xs disabled:opacity-50">{label}</button>)}</div></div></div>)}</div>}</section>}
+              {libraryOpen && cloudUser && <section aria-label="云端作品库" className="editor-panel mb-7 rounded-2xl border border-violet-300/20 p-5"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-semibold">云端作品库</h2><p className="mt-1 text-xs text-[#a7abbd]">只显示当前账号作品；删除云端作品不会删除本地原件。</p></div><button type="button" onClick={loadCloudWorks} disabled={cloudBusy} className="secondary-action rounded-lg px-3 py-2 text-xs">刷新</button></div>{cloudWorks.length===0?<p className="text-sm">还没有云端作品。当前本地作品可通过“同步到云端”迁移。</p>:<div className="grid gap-3 md:grid-cols-2">{cloudWorks.map(item=><div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3"><p className="truncate text-sm font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#a7abbd]">{item.document_type} · 修订 {item.revision} · {item.updated_at?new Date(item.updated_at).toLocaleString():''}</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>openCloudWork(item)} disabled={cloudBusy} className="secondary-action rounded-lg px-2 py-1.5 text-xs">打开并继续编辑</button><button type="button" onClick={async()=>{if(!window.confirm('确定删除此云端作品？本地原件不会删除。'))return;try{await cloudFetch('/api/cloud/works/'+item.id,{method:'DELETE'});await loadCloudWorks();}catch(e){setCloudError(e.message||'删除失败。');}}} disabled={cloudBusy} className="secondary-action rounded-lg px-2 py-1.5 text-xs">删除云端作品</button></div></div>)}</div>}</section>}
+
+              {/* 标题区 */}
+              <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+                <div className="max-w-2xl">
+                  <div className="glass-chip mb-4 inline-flex items-center gap-2 rounded-full border border-[#e4ecdf] bg-[#f0f6ec] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7b9d6e]">
+                    <Icon name="sparkles" size={12} />
+                    A LITTLE STUDIO FOR BIG IDEAS
+                  </div>
+                  <h1 className="font-display text-[32px] font-bold leading-[1.2] tracking-[-0.06em] text-[#273329] sm:text-[43px]">
+                    让校园里的
+                    <span className="relative inline-block text-[#82a56e]">
+                      好点子
+                      <span className="absolute -bottom-1 left-0 h-[5px] w-full rounded-full bg-[#d9ebcf]" />
+                    </span>
+                    ，
+                    <br className="sm:hidden" />
+                    被更多人看见。
+                  </h1>
+                  <p className="mt-4 max-w-xl text-sm leading-7 text-[#909b8d]">
+                    VibeCanvas 校园多模态创意与海报微工坊。
+                    从一句灵感出发，轻松创作你的专属图文与海报。
+                  </p>
+                </div>
+                <div className="hidden items-center gap-3 text-right md:flex">
+                  <div>
+                    <p className="font-display text-xs font-bold tracking-wider text-[#677963]">
+                      MADE FOR YOUR MOMENT
+                    </p>
+                    <p className="mt-1 text-[11px] text-[#abb5a8]">
+                      灵感不必等待，创作现在开始
+                    </p>
+                  </div>
+                  <span className="float flex h-11 w-11 items-center justify-center rounded-full border border-[#e3ebdf] bg-white text-[#91af83]">
+                    <Icon name="asterisk" size={23} />
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid items-start gap-7 lg:grid-cols-[340px_minmax(0,1fr)] xl:grid-cols-[370px_minmax(0,1fr)]">
+                {/* 左侧控制区 */}
+                <div className="space-y-5">
+                  <PromptPanel
+                    prompt={prompt}
+                    setPrompt={(value) => {
+                      setPrompt(value);
+                      if (error) setError("");
+                    }}
+                    onGenerate={handleGenerate}
+                    generating={generating}
+                    error={error}
+                    photo={firstPhoto}
+                    photoLoading={photoLoading}
+                    onPhoto={handlePhoto}
+                    onRemovePhoto={handleRemovePhoto}
+                    mode={mode}
+                    onModeChange={handleModeChange}
+                    imageBusy={imageBusy}
+                    documentType={work.documentType}
+                    onDocumentTypeChange={handleDocumentTypeChange}
+                  />
+
+                  <ProgressPanel
+                    generating={generating}
+                    hasResult={hasResult}
+                    error={error}
+                    generationStep={generationStep}
+                  />
+
+                  <div className="flex items-center gap-3 px-1 text-[11px] leading-5 text-[#a1aca0]">
+                    <Icon name="heart" size={15} className="text-[#9ab88b]" />
+                    <span>为每一个认真生活、热爱创造的你。</span>
+                  </div>
+                </div>
+
+                {/* 右侧画布 */}
+                <section
+                  aria-labelledby="canvas-heading"
+                  className="studio-grid min-w-0 rounded-[28px] border border-[#e7ece4] bg-[#f3f6f0] p-5 sm:p-7"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ca99a]">
+                        <Icon name="layout-template" size={13} />
+                        PREVIEW & EDIT CANVAS
+                      </div>
+                      <h2
+                        id="canvas-heading"
+                        className="mt-2 text-xl font-semibold tracking-tight text-[#344034]"
+                      >
+                        你的灵感画布
+                        <span className="ml-2 text-[#9ab78b]">✳</span>
+                      </h2>
+                      <p className="mt-2 text-xs leading-6 text-[#9ca99a]">
+                        三种风格，三种表达。选择喜欢的设计继续微调。
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e1e9dd] bg-white/80 px-3 py-2 text-[10px] font-semibold text-[#8ca085]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#9dc28c]" />
+                      {hasResult ? "3 DESIGNS READY" : "3 STYLE PREVIEWS"}
+                    </span>
+                  </div>
+
+                  {!hasResult && !generating && (
+                    <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#e2eadc] bg-white/70 px-4 py-3 text-xs leading-5 text-[#879783]">
+                      <Icon
+                        name="lightbulb"
+                        size={15}
+                        className="mt-0.5 text-[#9bbd88]"
+                      />
+                      <span>
+                        这里展示的是示例效果。输入主题并点击生成，创建你的专属画布。
+                      </span>
+                    </div>
+                  )}
+
+                  {generating && (
+                    <div
+                      className="status-line shimmer mt-6 flex items-center gap-2.5 rounded-xl border border-[#dfebd9] bg-[#eaf4e5] px-4 py-3 text-xs text-[#77966a]"
+                      role="status"
+                    >
+                      <Icon name="sparkles" size={15} />
+                      正在请求模型，请稍候…
+                    </div>
+                  )}
+
+                  {isCarousel && work.pages && <div className="editor-panel mt-6 rounded-[20px] border border-white/10 p-4" aria-label="多页管理"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold text-white">连续多页图文</p><p className="mt-1 text-[11px] text-[#a7abbd]">{work.pages.length} 页 · 使用按钮调整顺序</p></div><div className="flex flex-wrap gap-2"><button type="button" className="secondary-action rounded-lg px-2.5 py-1.5 text-xs" onClick={addPage} disabled={work.pages.length>=6}>新增</button><button type="button" className="secondary-action rounded-lg px-2.5 py-1.5 text-xs" onClick={copyPage} disabled={work.pages.length>=6}>复制</button><button type="button" className="secondary-action rounded-lg px-2.5 py-1.5 text-xs" onClick={deletePage} disabled={work.pages.length<=3}>删除</button><button type="button" aria-label="当前页上移" className="secondary-action rounded-lg px-2.5 py-1.5 text-xs" onClick={()=>movePage(-1)}>←</button><button type="button" aria-label="当前页下移" className="secondary-action rounded-lg px-2.5 py-1.5 text-xs" onClick={()=>movePage(1)}>→</button></div></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">{work.pages.map((page,index)=><button key={page.id} type="button" onClick={()=>selectPage(page.id)} aria-pressed={page.id===work.activePageId} className={`rounded-xl border p-2 text-left text-[11px] ${page.id===work.activePageId?'border-violet-300 bg-violet-400/20':'border-white/10 bg-white/[0.03]'}`}><span className="text-[#a7abbd]">{String(index+1).padStart(2,'0')} · {page.type==='cover'?'封面':page.type==='ending'?'结尾':'内容'}</span><span className="mt-1 block truncate font-semibold text-white">{page.title}</span></button>)}</div></div>}
+
+                  <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {STYLES.map((style, index) => (
+                      <div
+                        key={style.id}
+                        className="enter min-w-0"
+                        style={{ animationDelay: `${index * 80}ms` }}
+                      >
+                        <ResultCard
+                          style={style}
+                          content={content}
+                          palette={palette}
+                          photo={photos[style.id]}
+                          crop={crops[style.id]}
+                          selected={selectedStyleId === style.id}
+                          onSelect={() => {
+                            setSelectedStyleId(style.id);
+                            if(isCarousel && activePage) pageEdit(activePage.id,{styleId:style.id});
+                            setExportError("");
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {mode==='ai' && hasResult && <div className="editor-panel mt-6 rounded-[20px] border border-white/10 p-5">
+                    <label className="block text-xs font-semibold">配图描述（最多 500 字）<textarea value={imagePrompt} maxLength={500} onChange={e=>setImagePrompt(e.target.value)} rows={3} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b13] px-4 py-3 text-sm text-white" /></label>
+                    <p className="mt-2 text-[11px] text-[#8e90a8]">画图模型只读英文，生成前会自动把这段中文翻译成英文；改了中文会重新翻译。</p>
+                    {englishFresh && <details className="mt-1 text-[11px] text-[#8e90a8]"><summary className="cursor-pointer">查看实际送去生成的英文提示词</summary><p className="mt-1 break-words text-[#babbd1]">{imagePromptEn}</p></details>}
+                    <div className="mt-3 flex flex-wrap items-center gap-3"><button type="button" disabled={imageBusy || generating || !imagePrompt.trim()} onClick={()=>startImages(imagePrompt,workVersion.current)} className="secondary-action rounded-xl px-4 py-3 text-xs font-semibold disabled:opacity-50">只重新生成配图（再次调用图片服务）</button><span role="status" className="text-xs text-[#babbd1]">{imageStatus}</span></div>
+                    {imageError && <p role="alert" className="mt-2 text-xs text-[#f6ad9a]">{imageError} 已有文案和图片仍可使用。</p>}
+                  </div>}
+                  {selectedStyle && (
+                    <EditorPanel
+                      selectedStyle={selectedStyle}
+                      generating={generating}
+                      content={content}
+                      tagsText={tagsText}
+                      onEdit={handleEdit}
+                      paletteId={effectivePaletteId}
+                      onPaletteChange={value=>isCarousel&&activePage?pageEdit(activePage.id,{paletteId:value}):setPaletteId(value)}
+                      onDownload={handleDownload}
+                      downloading={downloading}
+                      onCopy={handleCopy}
+                      copyState={copyState}
+                      onRegenerateCopy={()=>regenerateContent('copy')}
+                      onRegeneratePage={isCarousel?()=>regenerateContent('page'):null}
+                      layoutWarnings={layoutWarnings}
+                      photo={photos[selectedStyle.id]}
+                      crop={activeCrops[selectedStyle.id]}
+                      onCrop={(key,value)=>isCarousel?pageEdit(activePage.id,{crops:{...activeCrops,[selectedStyle.id]:{...activeCrops[selectedStyle.id],[key]:value}}}):setCrops(current=>({...current,[selectedStyle.id]:{...current[selectedStyle.id],[key]:value}}))}
+                    />
+                  )}
+                  {isCarousel && selectedStyle && <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" onClick={handleDownloadPage} disabled={downloading} className="secondary-action rounded-lg px-3 py-2 text-xs">下载当前页 PNG</button><button type="button" onClick={handleDownloadZip} disabled={downloading} className="primary-action rounded-lg px-3 py-2 text-xs">下载整组 ZIP</button><span role="status" className="text-xs text-[#babbd1]">导出尺寸 1080×1440（3:4）</span></div>}
+
+                  {exportError && (
+                    <p
+                      role="alert"
+                      className="mt-3 text-xs text-[#b75f4c]"
+                    >
+                      {exportError}
+                    </p>
+                  )}
+
+                  {!selectedStyle && (
+                    <div className="mt-7 flex items-center justify-center gap-2 text-xs text-[#a1afa0]">
+                      <Icon name="mouse-pointer-2" size={14} />
+                      点击任意卡片，开始个性化编辑
+                    </div>
+                  )}
+                </section>
+              </div>
+
+              {feedbackOpen && (
+                <section aria-label="意见反馈" className="editor-panel mb-7 rounded-2xl border border-white/10 p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">给试用版提意见</h2>
+                    <button type="button" onClick={()=>setFeedbackOpen(false)} className="secondary-action rounded-lg px-3 py-2 text-xs">关闭</button>
+                  </div>
+                  <p className="mb-3 text-xs">只需要打分和一句话。不会读取你的照片、文案或作品内容。</p>
+                  <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="体验评分">
+                    {[1,2,3,4,5].map(score=>(
+                      <button key={score} type="button" aria-pressed={feedbackRating===score} aria-label={score+' 分'} onClick={()=>setFeedbackRating(feedbackRating===score?0:score)} className={"secondary-action rounded-lg px-3 py-1.5 text-xs " + (feedbackRating===score?"ring-1 ring-current":"opacity-80")}>{score} 分</button>
+                    ))}
+                  </div>
+                  <label htmlFor="feedback-text" className="mb-1 block text-xs">想说的（选填，最多 300 字）</label>
+                  <textarea id="feedback-text" value={feedbackText} maxLength={300} rows={3} onChange={event=>setFeedbackText(event.target.value)} className="mb-3 w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm" placeholder="哪里好用、哪里卡住，都可以写。" />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button type="button" disabled={feedbackBusy} onClick={submitFeedback} className="primary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">{feedbackBusy?'发送中…':'发送反馈'}</button>
+                    {feedbackStatus && <span className="text-xs" role="status">{feedbackStatus}</span>}
+                  </div>
+                </section>
+              )}
+              <footer className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-[#e7ece5] pt-6 text-[11px] text-[#aab4a7]">
+                <span>© VibeCanvas · 把灵感，变成看得见的美好。</span>
+                <button type="button" onClick={toggleFeedback} className="secondary-action rounded-lg px-3 py-1.5 text-xs">意见反馈</button>
+                <span className="font-display tracking-wide">
+                  CREATED WITH GOOD VIBES ✳
+                </span>
+              </footer>
+              </fieldset>
+            </main>
+
+            {/* 导出专用画布：保持真实布局尺寸，但放在视口之外 */}
+            {selectedStyle && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "fixed",
+                  left: "-10000px",
+                  top: 0,
+                  width: "600px",
+                  pointerEvents: "none",
+                }}
+              >
+                <div ref={exportRef}>
+                  <Poster
+                    styleId={selectedStyle.id}
+                    content={content}
+                    palette={palette}
+                    photo={photos[selectedStyle.id]}
+                    crop={activeCrops[selectedStyle.id]}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

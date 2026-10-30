@@ -1,0 +1,30 @@
+[Unit]
+Description=VibeCanvas 试用版
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vibecanvas
+Group=vibecanvas
+WorkingDirectory=/opt/vibecanvas
+# 环境变量全部从 .env.production 读，服务文件里不写任何密钥
+EnvironmentFile=/opt/vibecanvas/.env.production
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+# 正常停止时给正在跑的请求留时间，Node 会自己走 close()
+KillSignal=SIGTERM
+TimeoutStopSec=20
+
+# 只允许写数据目录，代码目录只读
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vibecanvas
+
+# 日志走 journald：journalctl -u vibecanvas -f
+
+[Install]
+WantedBy=multi-user.target
