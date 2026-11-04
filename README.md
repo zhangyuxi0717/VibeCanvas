@@ -6,6 +6,19 @@
 并把 Tailwind 样式、字体和 React / Lucide / html2canvas 打包进 `public/`，由服务进程一起托管。
 构建产物的文件名带内容哈希，改完代码重新构建即可，用户不用清缓存。
 
+## 10 分钟复现入口
+
+**环境：** Windows 11、Node.js 20 或更新版本、npm；文字生成需一个支持 JSON 输出的 OpenAI 兼容 Chat Completions 服务。首次安装依赖和下载模型所需时间取决于网络，不计入已安装环境的启动时间。
+
+1. 克隆仓库后，在项目目录执行 `npm ci`、`npm run build`。
+2. 复制 `.env.example` 为 `.env`，填写 `MODEL_API_URL`、`MODEL_NAME`、`MODEL_API_KEY`。真实密钥只留在本机，不提交仓库。
+3. 执行 `npm run check:config` 检查配置，再执行 `npm start`，打开 `http://127.0.0.1:3000/`。
+4. 输入“吉他社招新”，选择“纯文字”和“单张海报”，点击“生成我的创意”，选择模板、修改文字并下载 PNG。
+5. 执行 `npm test` 验证自动化测试。需要图片生成时再启动 ComfyUI 并按下文配置 SDXL；照片识别和云端同步各需独立配置。
+
+**本机 ComfyUI：** 准备 `sd_xl_base_1.0.safetensors`、启动 ComfyUI（默认 `http://127.0.0.1:8188`），将 `COMFYUI_WORKFLOW_PATH` 指向项目根目录的 `comfyui-workflow.json`，设置 `COMFYUI_PROMPT_NODE_ID=4`。该工作流必须是 API Format；显存和模型文件不足时，先用纯文字路径复现核心页面。
+
+**结果边界：** 模型输出有随机性；验收以接口成功、字段结构、图片尺寸、可编辑和可导出为准。可选 Supabase、远程图片服务及计费功能不属于最小复现路径。
 ## 本地启动
 
 1. 选一个示例文件复制成不带 `.example` 的那份，仓库里只有示例、没有真实密钥：
@@ -36,7 +49,7 @@ npm start        # 读 .env
 4. 在浏览器打开 http://127.0.0.1:3000/ ，不要直接双击 HTML 文件。停止服务可按 Ctrl+C。
    如果 3000 端口已被占用，可先执行 `$env:PORT='3004'`（这是 Windows PowerShell 的写法；bash 里是 `PORT=3004`），
    再启动并打开 http://127.0.0.1:3004/。
-5. 运行本地检查：`npm test`（82 个用例）；`npm run check:config` 自检配置；`npm run e2e` 跑端到端验收
+5. 运行本地检查：`npm test`（实际用例数以运行结果为准）；`npm run check:config` 自检配置；`npm run e2e` 跑端到端验收
    （需要先构建并起服务，详见 `docs/DEPLOY.md`）。
 
 输入上限 500 字；标题 18 字、副标题 30 字、正文 80 字、标签 1–4 个（每个最多 10 字）。模型超时为 45 秒；本地按 IP 限制每分钟 10 次。限制在内存中，重启服务会重置，仅适用于本地 MVP。
@@ -117,13 +130,13 @@ SUPABASE_STORAGE_BUCKET=vibecanvas-private
 
 ```env
 COMFYUI_API_URL=http://127.0.0.1:8188
-COMFYUI_WORKFLOW_PATH=E:\imagesLLM\ComfyUI-portable\ComfyUI_windows_portable\ComfyUI\user\default\workflows\vibecanvas-api.json
-COMFYUI_PROMPT_NODE_ID=6
+COMFYUI_WORKFLOW_PATH=C:\path\to\张瑜唏VibeCanvas\comfyui-workflow.json
+COMFYUI_PROMPT_NODE_ID=4
 COMFYUI_POLL_INTERVAL_MS=1500
 COMFYUI_TIMEOUT_MS=300000
 ```
 
-服务端会向 ComfyUI 的 `/prompt` 提交 API workflow，向指定文本节点注入用户的 `imagePrompt`，轮询 `/history/{prompt_id}`，再通过 `/view` 读取生成图片。配置了 `COMFYUI_WORKFLOW_PATH` 后优先使用 ComfyUI，未配置时才使用本地固定 PNG 或远程图片服务。界面蓝图 JSON 不能直接提交到 `/prompt`；必须使用 `Save (API Format)` 导出的节点映射。不同模型的提示词节点 ID、输出节点和自定义节点可能不同，需按实际 workflow 设置 `COMFYUI_PROMPT_NODE_ID`。当前已实现标准 ComfyUI API 流程，但尚未用你的具体 workflow 和模型完成真实生图验证。
+服务端会向 ComfyUI 的 `/prompt` 提交 API workflow，向指定文本节点注入用户的 `imagePrompt`，轮询 `/history/{prompt_id}`，再通过 `/view` 读取生成图片。配置了 `COMFYUI_WORKFLOW_PATH` 后优先使用 ComfyUI，未配置时才使用本地固定 PNG 或远程图片服务。界面蓝图 JSON 不能直接提交到 `/prompt`；必须使用 `Save (API Format)` 导出的节点映射。不同模型的提示词节点 ID、输出节点和自定义节点可能不同，需按实际 workflow 设置 `COMFYUI_PROMPT_NODE_ID`。当前已使用项目内的 API Format workflow 与 SDXL Base 1.0 完成一次真实生图验证；更换模型或工作流后需重新验证。
 本项目已根据当前 ComfyUI 最近一次成功记录生成 `comfyui-workflow.json`，默认提示词节点为 `4`，使用 `sd_xl_base_1.0.safetensors` 和 `SaveImage` 节点。若你在 ComfyUI 中更换模型或工作流，请重新导出 API JSON 并更新 `COMFYUI_WORKFLOW_PATH` / `COMFYUI_PROMPT_NODE_ID`。
 
 ## 构建、部署与试用
@@ -151,3 +164,5 @@ npm run trial           # 临时给别人看：Cloudflare 隧道 + 生产配置�
 ```
 
 健康检查：`/healthz` 只表示进程活着；`/readyz` 会检查静态产物、数据目录和数据库，返回 503 时不要接流量。
+
+
