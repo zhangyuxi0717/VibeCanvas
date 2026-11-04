@@ -25,13 +25,24 @@ function securityHeaders(config, noncePolicy = true) {
   if (process.env.SUPABASE_URL) {
     try { connect.push(new URL(process.env.SUPABASE_URL).origin); } catch {}
   }
+  // 开发模式直接加载 VibeCanvas.html 源码，页面里的 React、Tailwind、Babel
+  // 都来自 CDN，JSX 还要靠 Babel 在浏览器里编译（需要 unsafe-eval）。
+  // 生产模式读 public/ 构建产物，全部同源，保持最严格的策略。
+  const dev = !config.production;
+  const scriptSrc = dev
+    ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.tailwindcss.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net']
+    : ["'self'"];
+  const styleSrc = dev
+    ? ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
+    : ["'self'", "'unsafe-inline'"];
+  const fontSrc = dev ? ["'self'", 'https://fonts.gstatic.com'] : ["'self'"];
   const csp = [
     "default-src 'self'",
-    "script-src 'self'",
+    `script-src ${scriptSrc.join(' ')}`,
     // React 用 style 属性排版，必须允许内联样式；脚本仍然只允许同源文件。
-    "style-src 'self' 'unsafe-inline'",
+    `style-src ${styleSrc.join(' ')}`,
     "img-src 'self' data: blob:",
-    "font-src 'self'",
+    `font-src ${fontSrc.join(' ')}`,
     `connect-src ${[...new Set(connect)].join(' ')}`,
     "media-src 'self' blob:",
     "object-src 'none'",

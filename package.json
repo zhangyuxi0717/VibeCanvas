@@ -15,8 +15,8 @@
     "trial": "node scripts/start-trial.mjs",
     "e2e": "node scripts/e2e.mjs",
     "check:ui": "node scripts/resilience.mjs",
-    "test": "node --test server.test.js image-service.test.js comfyui-service.test.js work-library.test.js cloud-store.test.js image-prompts.test.js config.test.js cloud-backup.test.js trial-guard.test.js billing.test.js",
-    "test:env": "node --env-file=.env.test --test server.test.js image-service.test.js comfyui-service.test.js work-library.test.js cloud-store.test.js image-prompts.test.js config.test.js cloud-backup.test.js trial-guard.test.js billing.test.js"
+    "test": "node --test server.test.js image-service.test.js comfyui-service.test.js work-library.test.js cloud-store.test.js image-prompts.test.js config.test.js cloud-backup.test.js trial-guard.test.js billing.test.js http-security.test.js",
+    "test:env": "node --env-file=.env.test --test server.test.js image-service.test.js comfyui-service.test.js work-library.test.js cloud-store.test.js image-prompts.test.js config.test.js cloud-backup.test.js trial-guard.test.js billing.test.js http-security.test.js"
   },
   "dependencies": {
     "sharp": "^0.34.5"
