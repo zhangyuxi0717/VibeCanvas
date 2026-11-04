@@ -29,7 +29,9 @@ const EN_PROMPT_LIMIT = 1500;
 const CAROUSEL_LIMITS = { pagesMin: 3, pagesMax: 6, pageTitle: 22, pageSubtitle: 32, pageBody: 120, publishTitle: 30, publishBody: 500 };
 function validateOutput(data, prompt) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('format');
-  const check = (value, max) => { if (typeof value !== 'string' || !value.trim() || value.length > max || /[\r\n]/.test(value)) throw new Error('format'); return value.trim(); };
+  // 模型偶尔会在单行字段里换行或用多个空格分段。排版只需要一行，
+  // 先压成单个空格再判长度，比直接判失败更稳。
+  const check = (value, max) => { if (typeof value !== 'string') throw new Error('format'); const normalized=value.replace(/\s+/g,' ').trim(); if (!normalized || normalized.length > max) throw new Error('format'); return normalized; };
   const title = check(data.title,LIMITS.title), subtitle = check(data.subtitle,LIMITS.subtitle), description = check(data.description,LIMITS.description);
   if (!Array.isArray(data.tags) || data.tags.length < 1 || data.tags.length > LIMITS.tags) throw new Error('format');
   const tags = data.tags.map(t => check(t,LIMITS.tag).replace(/^#+/, ''));
@@ -45,24 +47,33 @@ function validateOutput(data, prompt) {
 }
 function validateCarouselOutput(data, prompt) {
   const base = validateOutput(data, prompt);
-  const check = (value, max) => { if (typeof value !== 'string' || !value.trim() || value.length > max || /[\r\n]/.test(value)) throw new Error('format'); return value.trim(); };
+  // 模型偶尔会在单行字段里换行或用多个空格分段。排版只需要一行，
+  // 先压成单个空格再判长度，比直接判失败更稳。
+  const check = (value, max) => { if (typeof value !== 'string') throw new Error('format'); const normalized=value.replace(/\s+/g,' ').trim(); if (!normalized || normalized.length > max) throw new Error('format'); return normalized; };
+  // 发布文案是给用户复制到平台的，允许保留分段；海报内的字段仍然必须单行。
+  const checkMultiline = (value, max) => {
+    if (typeof value !== 'string') throw new Error('format');
+    const normalized = value.replace(/\r\n?/g, '\n').split('\n').map((line) => line.replace(/[ \t]+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (!normalized || normalized.length > max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(normalized)) throw new Error('format');
+    return normalized;
+  };
   if (!data.publishCopy || typeof data.publishCopy !== 'object') throw new Error('format');
   const publishTitle = check(data.publishCopy.title, CAROUSEL_LIMITS.publishTitle);
-  const publishBody = check(data.publishCopy.body, CAROUSEL_LIMITS.publishBody);
+  const publishBody = checkMultiline(data.publishCopy.body, CAROUSEL_LIMITS.publishBody);
   if (!Array.isArray(data.publishCopy.tags) || data.publishCopy.tags.length < 1 || data.publishCopy.tags.length > 8) throw new Error('format');
   const publishTags = data.publishCopy.tags.map(tag => check(tag, LIMITS.tag).replace(/^#+/, '')).filter(Boolean);
   if (!publishTags.length) throw new Error('format');
   if (!Array.isArray(data.pages) || data.pages.length < CAROUSEL_LIMITS.pagesMin || data.pages.length > CAROUSEL_LIMITS.pagesMax) throw new Error('format');
-  const allowedTypes = new Set(['cover','content','ending']);
-  if (data.pages[0]?.type !== 'cover' || data.pages[data.pages.length - 1]?.type !== 'ending') throw new Error('format');
   const pages = data.pages.map((page, index) => {
-    if (!page || typeof page !== 'object' || !allowedTypes.has(page.type)) throw new Error('format');
-    if (index > 0 && index < data.pages.length - 1 && page.type !== 'content') throw new Error('format');
+    if (!page || typeof page !== 'object') throw new Error('format');
+    // 页面类型按位置归一：第一页封面，最后一页结尾，中间内容。
+    // 模型偶尔会漏掉 type 或写错，排版真正依赖的是位置。
+    const type = index === 0 ? 'cover' : index === data.pages.length - 1 ? 'ending' : 'content';
     const title = check(page.title, CAROUSEL_LIMITS.pageTitle);
     const subtitle = page.subtitle == null ? '' : check(page.subtitle, CAROUSEL_LIMITS.pageSubtitle);
     const body = page.body == null ? '' : check(page.body, CAROUSEL_LIMITS.pageBody);
     if (!subtitle && !body) throw new Error('format');
-    return { type: page.type, title, subtitle, body, tags: Array.isArray(page.tags) ? page.tags.slice(0, 4).map(tag => check(tag, LIMITS.tag).replace(/^#+/, '')) : [] };
+    return { type, title, subtitle, body, tags: Array.isArray(page.tags) ? page.tags.slice(0, 4).map(tag => check(tag, LIMITS.tag).replace(/^#+/, '')) : [] };
   });
   const unique = new Set(pages.map(page => `${page.title}|${page.body}`));
   if (unique.size < Math.ceil(pages.length * 0.8)) throw new Error('format');
