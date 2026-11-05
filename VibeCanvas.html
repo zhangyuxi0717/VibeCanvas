@@ -152,6 +152,65 @@
       .secondary-action:hover, .preset-btn:hover { background: rgba(129, 112, 207, 0.42) !important; border-color: rgba(192, 179, 255, 0.65) !important; }
       .secondary-action[aria-pressed="true"] { background: rgba(125, 105, 218, 0.48) !important; color: #fff !important; border-color: #bcb0ff !important; }
       .secondary-action:disabled, .preset-btn:disabled { opacity: .55; }
+
+
+      /* Cyberpunk studio skin. Keep poster-frame colors untouched for exports. */
+      :root { color-scheme: dark; --cyber-cyan: #5cf3ef; --cyber-pink: #ff65c7; --cyber-purple: #9b79ff; --cyber-border: rgba(92,243,239,.19); }
+      body { background: #070813; color: #eef4ff; }
+      ::selection { background: #5cf3ef; color: #07131a; }
+      #top { position: relative; isolation: isolate; background: radial-gradient(ellipse at 8% 4%,rgba(80,43,154,.36),transparent 33%), radial-gradient(ellipse at 92% 18%,rgba(12,126,145,.20),transparent 32%), radial-gradient(ellipse at 50% 80%,rgba(153,37,115,.11),transparent 42%),#070813 !important; }
+      #top::before { content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none; background: linear-gradient(rgba(93,243,239,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(93,243,239,.035) 1px,transparent 1px); background-size: 64px 64px; mask-image: linear-gradient(to bottom,#000,transparent 72%); }
+      .site-header { position: relative; z-index: 3; background: rgba(7,10,22,.82) !important; border-color: var(--cyber-border) !important; box-shadow: 0 1px 0 rgba(255,101,199,.13); }
+      .brand-mark { border: 1px solid rgba(92,243,239,.45); background: linear-gradient(145deg,rgba(35,83,107,.86),rgba(43,20,80,.94)) !important; color: var(--cyber-cyan) !important; box-shadow: inset 0 1px rgba(255,255,255,.14),0 0 23px rgba(92,243,239,.18); clip-path: polygon(0 0,82% 0,100% 18%,100% 100%,18% 100%,0 82%); }
+      .brand-wordmark { color: #f4f7ff !important; letter-spacing: -.035em !important; }
+      .brand-wordmark span:first-child { color: var(--cyber-cyan) !important; }
+      .brand-wordmark span:last-child { color: var(--cyber-pink) !important; }
+      .site-header span[class*="tracking-"] { color: #96a8c7; }
+      .site-header .bg-\[\#8cb878\] { background: var(--cyber-cyan) !important; box-shadow: 0 0 12px var(--cyber-cyan); }
+      .header-orb { border-color: var(--cyber-border) !important; background: rgba(92,243,239,.08) !important; color: var(--cyber-cyan) !important; }
+      .workspace-bar { position: relative; border-color: rgba(92,243,239,.18) !important; background: linear-gradient(90deg,rgba(13,30,47,.85),rgba(19,17,39,.82)) !important; box-shadow: inset 3px 0 var(--cyber-cyan),0 14px 34px rgba(0,0,0,.18); }
+      .workspace-bar::after { content:'WORKSPACE / LOCAL FIRST'; position:absolute; right:18px; bottom:-18px; color:rgba(92,243,239,.55); font: 600 9px 'Space Grotesk',sans-serif; letter-spacing:.15em; }
+      .hero-panel { position: relative; overflow: hidden; min-height: 220px; padding: 29px 34px 32px; border: 1px solid rgba(92,243,239,.24); border-radius: 24px; background: linear-gradient(115deg,rgba(16,21,43,.94) 0%,rgba(18,26,49,.80) 56%,rgba(50,18,62,.68) 100%); box-shadow: 0 24px 75px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.08); }
+      .hero-panel::before { content:''; position:absolute; top:-130px; right:-100px; width:530px; height:420px; pointer-events:none; background: repeating-radial-gradient(ellipse at center,transparent 0 35px,rgba(92,243,239,.09) 36px 37px,transparent 38px 63px); transform: rotate(-15deg); }
+      .hero-panel::after { content:''; position:absolute; top:0; right:0; width:95px; height:95px; border-top:2px solid var(--cyber-pink); border-right:2px solid var(--cyber-pink); clip-path:polygon(25% 0,100% 0,100% 75%); opacity:.8; }
+      .hero-panel > * { position: relative; z-index: 1; }
+      .hero-panel h1 { color:#f3f7ff !important; text-shadow:0 0 30px rgba(92,243,239,.12); }
+      .hero-panel h1 span.relative { color:var(--cyber-cyan) !important; text-shadow:0 0 22px rgba(92,243,239,.38); }
+      .hero-panel h1 span.absolute { background:linear-gradient(90deg,var(--cyber-cyan),var(--cyber-pink)) !important; height:3px !important; box-shadow:0 0 14px rgba(92,243,239,.55); }
+      .hero-panel p { color:#afbbd4 !important; }
+      .hero-panel .float { border-color:rgba(255,101,199,.42) !important; background:rgba(255,101,199,.10) !important; color:var(--cyber-pink) !important; box-shadow:0 0 25px rgba(255,101,199,.17); }
+      .glass-chip { border-color:rgba(92,243,239,.3) !important; background:rgba(92,243,239,.09) !important; color:var(--cyber-cyan) !important; }
+      .prompt-panel,.progress-panel,.studio-grid,.editor-panel { border:1px solid rgba(92,243,239,.18) !important; background:linear-gradient(160deg,rgba(20,26,47,.94),rgba(11,16,32,.93)) !important; box-shadow:0 20px 60px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.06) !important; }
+      .prompt-panel,.progress-panel,.studio-grid { position:relative; }
+      .prompt-panel::before,.progress-panel::before,.studio-grid::before { content:''; position:absolute; pointer-events:none; top:-1px; left:24px; width:72px; height:2px; background:linear-gradient(90deg,var(--cyber-cyan),transparent); box-shadow:0 0 12px var(--cyber-cyan); }
+      .studio-grid { background-image:linear-gradient(rgba(92,243,239,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(92,243,239,.045) 1px,transparent 1px) !important; background-size:28px 28px !important; }
+      .prompt-panel h2,.progress-panel h2,.studio-grid h2,.editor-panel h3 { color:#f2f6ff !important; }
+      .prompt-panel label,.prompt-panel p,.progress-panel p,.studio-grid > div p { color:#a8b8d2; }
+      .prompt-panel [class*="tracking-"],.progress-panel [class*="tracking-"],.studio-grid [class*="tracking-"] { color:var(--cyber-cyan) !important; }
+      .prompt-panel .bg-\[\#eef5e9\] { background:rgba(92,243,239,.12) !important; color:var(--cyber-cyan) !important; }
+      .prompt-panel .rounded-full.border:not(.preset-btn),.studio-grid .rounded-full.border { border-color:rgba(92,243,239,.24) !important; background:rgba(92,243,239,.07) !important; color:#b7fff8 !important; }
+      .prompt-panel div:has(>textarea),.editor-panel input,.editor-panel textarea { background:rgba(4,9,24,.70) !important; border-color:rgba(92,243,239,.20) !important; color:#f1f6ff !important; }
+      .prompt-panel div:has(>textarea):focus-within,.editor-panel input:focus,.editor-panel textarea:focus { border-color:var(--cyber-cyan) !important; box-shadow:0 0 0 3px rgba(92,243,239,.13),0 0 22px rgba(92,243,239,.10) !important; }
+      .prompt-panel textarea::placeholder,.editor-panel textarea::placeholder { color:#71819d !important; }
+      .prompt-panel textarea + div { border-color:rgba(92,243,239,.12) !important; }
+      .secondary-action,.preset-btn { background:rgba(24,33,57,.83) !important; border:1px solid rgba(112,141,178,.3) !important; color:#dce8fa !important; transition:background .2s,border-color .2s,box-shadow .2s,transform .2s; }
+      .secondary-action:hover,.preset-btn:hover { background:rgba(22,70,82,.55) !important; border-color:var(--cyber-cyan) !important; box-shadow:0 0 17px rgba(92,243,239,.13); }
+      .secondary-action[aria-pressed="true"],.preset-btn[aria-pressed="true"] { background:rgba(92,243,239,.17) !important; border-color:var(--cyber-cyan) !important; color:#f1ffff !important; box-shadow:inset 0 0 15px rgba(92,243,239,.08),0 0 13px rgba(92,243,239,.18); }
+      .primary-action { border:1px solid rgba(255,255,255,.22) !important; background:linear-gradient(105deg,#29c9d9,#755deb 54%,#e24fa6) !important; color:#fff !important; box-shadow:0 9px 28px rgba(107,89,232,.30),inset 0 1px rgba(255,255,255,.25) !important; }
+      .primary-action:hover { filter:brightness(1.13); box-shadow:0 12px 34px rgba(92,243,239,.20),0 0 22px rgba(255,101,199,.20) !important; }
+      .primary-action:disabled { filter:saturate(.6); box-shadow:none !important; }
+      .result-card { background:rgba(12,19,37,.82) !important; border-color:rgba(92,243,239,.16) !important; }
+      .result-card:hover,.result-card[aria-pressed="true"] { border-color:var(--cyber-cyan) !important; box-shadow:0 0 0 2px rgba(92,243,239,.14),0 16px 40px rgba(0,0,0,.3) !important; }
+      .result-card > div:last-child p:first-child { color:#f1f7ff !important; }
+      .result-card > div:last-child p:last-child { color:#a9b8d1 !important; }
+      .status-line { border-color:rgba(92,243,239,.28) !important; background:rgba(92,243,239,.08) !important; color:#b9f9f4 !important; }
+      .progress-fill { background:linear-gradient(90deg,var(--cyber-cyan),var(--cyber-purple),var(--cyber-pink)); box-shadow:0 0 14px rgba(92,243,239,.45); }
+      .workspace-layout :is(button,input,textarea):focus-visible,.site-header a:focus-visible { outline:2px solid var(--cyber-cyan) !important; outline-offset:3px; }
+      footer { border-color:rgba(92,243,239,.16) !important; color:#91a3c0 !important; }
+      @media (max-width:639px) { .hero-panel { padding:24px 21px 28px; min-height:0; } .hero-panel h1 { font-size:30px; } .workspace-bar::after { display:none; } }
+      @media (prefers-reduced-motion:reduce) { .hero-panel .float { animation:none; } }
+      .studio-grid .preview-notice { border-color:rgba(92,243,239,.27) !important; background:rgba(92,243,239,.09) !important; color:#c7d7e9 !important; }
+      .studio-grid .preview-notice svg { color:var(--cyber-cyan) !important; flex:none; }
     </style>
   </head>
 
@@ -241,6 +300,17 @@
       ];
 
       const PALETTES = [
+        {
+          id: "neon",
+          name: "霓虹夜",
+          swatch: "#5cf3ef",
+          background: "#16182e",
+          surface: "#242943",
+          ink: "#f0f6ff",
+          accent: "#5cf3ef",
+          deep: "#f486da",
+          soft: "#403765",
+        },
         {
           id: "matcha",
           name: "抹茶绿",
@@ -389,18 +459,18 @@
 
       function Header() {
         return (
-          <header className="border-b border-[#e8ece6] bg-white/85 backdrop-blur-xl">
+          <header className="site-header border-b border-[#e8ece6] bg-white/85 backdrop-blur-xl">
             <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
               <a
                 href="#top"
                 className="flex items-center gap-3"
                 aria-label="VibeCanvas 首页"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#243c2a] text-[#d7efbf] shadow-sm">
+                <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#243c2a] text-[#d7efbf] shadow-sm">
                   <Icon name="sparkles" size={21} />
                 </span>
                 <span>
-                  <span className="font-display block text-[17px] font-bold leading-none tracking-[-0.05em]">
+                  <span className="brand-wordmark font-display block text-[17px] font-bold leading-none tracking-[-0.05em]">
                     vibe<span className="text-[#779a64]">canvas</span>
                     <span className="text-[#a3c78f]">.</span>
                   </span>
@@ -415,7 +485,7 @@
                   <span className="h-1.5 w-1.5 rounded-full bg-[#8cb878]" />
                   为校园灵感而生
                 </span>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8ece6] bg-[#f5f8f2] text-[#61785b]">
+                <span className="header-orb flex h-9 w-9 items-center justify-center rounded-full border border-[#e8ece6] bg-[#f5f8f2] text-[#61785b]">
                   <Icon name="flower-2" size={17} />
                 </span>
               </div>
@@ -453,7 +523,7 @@
                   <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#eef5e9] text-[#789d66]">
                     <Icon name="wand-sparkles" size={12} />
                   </span>
-                  YOUR CREATIVE BRIEF
+                  INPUT // CREATIVE BRIEF
                 </div>
                 <h2
                   id="prompt-heading"
@@ -576,7 +646,7 @@
       function ProgressPanel({ generating, hasResult, error, generationStep }) {
         const steps = ["解析输入", "调用多模态引擎", "校验并排版"];
         return <section className="progress-panel rounded-[25px] border border-[#e7ebe4] bg-white p-5 sm:p-7" aria-live="polite">
-          <div className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#a0aa9e]">THE CREATIVE FLOW</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#a0aa9e]">SYSTEM // CREATIVE FLOW</div>
           <h2 className="mt-2 text-[17px] font-semibold">创作状态</h2>
           <div className="mt-5 flex items-center gap-3 text-sm text-[#c5c4e4]">
             <Icon name={generating ? "loader-circle" : error ? "circle-alert" : hasResult ? "circle-check" : "sparkles"} size={18} className={generating ? "loading-orbit" : ""} />
@@ -1038,7 +1108,7 @@
         return url ? <img src={url} alt="作品缩略图" className="h-20 w-16 rounded-lg object-cover" /> : <div className="flex h-20 w-16 items-center justify-center rounded-lg bg-white/10 text-violet-300"><Icon name="image" size={18}/></div>;
       }
       function App() {
-        const newWork=()=>({schemaVersion:1,id:crypto.randomUUID(),name:'未命名作品',createdAt:Date.now(),updatedAt:Date.now(),revision:0,prompt:'',documentType:'single',activePageId:null,pages:null,publishCopy:null,content:{title:'你的校园灵感',subtitle:'让每一个好点子，都值得被看见',description:'从一个想法开始，创造属于你的校园故事。',tags:['校园生活'],event:{time:null,location:null,organizer:null}},mode:'text',photos:{minimal:null,visual:null,magazine:null},imagePrompt:'',imagePromptEn:'',imagePromptEnFor:'',selectedStyleId:null,paletteId:'matcha',crops:{minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}},thumbnail:null,hasResult:false,cloudId:null,cloudRevision:0,cloudAsset:null});
+        const newWork=()=>({schemaVersion:1,id:crypto.randomUUID(),name:'未命名作品',createdAt:Date.now(),updatedAt:Date.now(),revision:0,prompt:'',documentType:'single',activePageId:null,pages:null,publishCopy:null,content:{title:'你的校园灵感',subtitle:'让每一个好点子，都值得被看见',description:'从一个想法开始，创造属于你的校园故事。',tags:['校园生活'],event:{time:null,location:null,organizer:null}},mode:'text',photos:{minimal:null,visual:null,magazine:null},imagePrompt:'',imagePromptEn:'',imagePromptEnFor:'',selectedStyleId:null,paletteId:'neon',crops:{minimal:{x:50,y:50,zoom:1},visual:{x:50,y:50,zoom:1},magazine:{x:50,y:50,zoom:1}},thumbnail:null,hasResult:false,cloudId:null,cloudRevision:0,cloudAsset:null});
         const [work,setWork]=useState(newWork);
         const workRef=useRef(work); workRef.current=work;
         const seqRef=useRef(0),savedSeqRef=useRef(0),revisionRef=useRef(0),savePromiseRef=useRef(null),saveTimerRef=useRef(null),initializedRef=useRef(false),conflictRef=useRef(false),channelRef=useRef(null);
@@ -1510,7 +1580,7 @@
 
             <main className="mx-auto max-w-[1440px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-12">
               <fieldset disabled={!storageReady} aria-busy={!storageReady}>
-              <div className="mb-7 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+              <div className="workspace-bar mb-7 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
                 <div><p className="text-sm font-semibold text-white">{work.name} <span role="status" className="ml-2 text-xs font-normal text-[#b6b8cc]">{saveStatus}</span></p><p className="mt-1 text-[11px]">本地作品保存在当前浏览器；云端状态：{cloudStatus}。清除浏览器数据不会删除已同步作品。</p>{saveError && <p role="alert" className="mt-1 text-xs text-[#f1a995]">{saveError} {firstPhoto ? '本次图片未保存，请重试。' : ''}</p>}{cloudError && <p role="alert" className="mt-1 text-xs text-[#f1a995]">{cloudError}</p>}{cloudUser && <p className="mt-1 text-[11px] text-[#a7abbd]">账号：{cloudUser.email||'已登录'} · 云端作品 {cloudWorks.length} 个 · 当前作品 {work.cloudId?'已关联':'仅本地'}</p>}</div>
                 <div className="flex flex-wrap gap-2">{billingConfig?.enabled && <button type="button" onClick={()=>{const next=!billingOpen;setBillingOpen(next);if(next){loadBillingWallet();loadBillingOrders();}}} className="secondary-action rounded-lg px-3 py-2 text-xs">{billingWallet?`额度 ${billingWallet.available}`:'额度与订单'}</button>}<button type="button" onClick={()=>flushSave().catch(()=>{})} className="secondary-action rounded-lg px-3 py-2 text-xs">重试保存</button><button type="button" disabled={generating || imageBusy || photoLoading} onClick={()=>{loadList();setLibraryOpen(!libraryOpen)}} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">作品库</button><button type="button" disabled={generating || imageBusy || photoLoading} onClick={createWork} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">新作品</button>{cloudUser?<><button type="button" disabled={cloudBusy} onClick={()=>syncCurrent()} className="primary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">{cloudBusy?'同步中…':'同步当前作品'}</button><button type="button" disabled={cloudBusy} onClick={migrateLocalWorks} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">迁移本地作品（{libraryList.length} 个）</button><button type="button" disabled={cloudBusy} onClick={signOut} className="secondary-action rounded-lg px-3 py-2 text-xs">退出 {cloudUser.email||''}</button></>:<button type="button" disabled={cloudBusy||cloudStatus==='云端未配置'} onClick={signIn} className="secondary-action rounded-lg px-3 py-2 text-xs disabled:opacity-50">登录并同步</button>}</div>
               </div>
@@ -1572,11 +1642,11 @@
               {libraryOpen && cloudUser && <section aria-label="云端作品库" className="editor-panel mb-7 rounded-2xl border border-violet-300/20 p-5"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-semibold">云端作品库</h2><p className="mt-1 text-xs text-[#a7abbd]">只显示当前账号作品；删除云端作品不会删除本地原件。</p></div><button type="button" onClick={loadCloudWorks} disabled={cloudBusy} className="secondary-action rounded-lg px-3 py-2 text-xs">刷新</button></div>{cloudWorks.length===0?<p className="text-sm">还没有云端作品。当前本地作品可通过“同步到云端”迁移。</p>:<div className="grid gap-3 md:grid-cols-2">{cloudWorks.map(item=><div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3"><p className="truncate text-sm font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#a7abbd]">{item.document_type} · 修订 {item.revision} · {item.updated_at?new Date(item.updated_at).toLocaleString():''}</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>openCloudWork(item)} disabled={cloudBusy} className="secondary-action rounded-lg px-2 py-1.5 text-xs">打开并继续编辑</button><button type="button" onClick={async()=>{if(!window.confirm('确定删除此云端作品？本地原件不会删除。'))return;try{await cloudFetch('/api/cloud/works/'+item.id,{method:'DELETE'});await loadCloudWorks();}catch(e){setCloudError(e.message||'删除失败。');}}} disabled={cloudBusy} className="secondary-action rounded-lg px-2 py-1.5 text-xs">删除云端作品</button></div></div>)}</div>}</section>}
 
               {/* 标题区 */}
-              <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+              <div className="hero-panel mb-10 flex flex-wrap items-end justify-between gap-6">
                 <div className="max-w-2xl">
                   <div className="glass-chip mb-4 inline-flex items-center gap-2 rounded-full border border-[#e4ecdf] bg-[#f0f6ec] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7b9d6e]">
                     <Icon name="sparkles" size={12} />
-                    A LITTLE STUDIO FOR BIG IDEAS
+                    CREATIVE SYSTEM // VIBECANVAS 01
                   </div>
                   <h1 className="font-display text-[32px] font-bold leading-[1.2] tracking-[-0.06em] text-[#273329] sm:text-[43px]">
                     让校园里的
@@ -1596,10 +1666,10 @@
                 <div className="hidden items-center gap-3 text-right md:flex">
                   <div>
                     <p className="font-display text-xs font-bold tracking-wider text-[#677963]">
-                      MADE FOR YOUR MOMENT
+                      DESIGN YOUR SIGNAL
                     </p>
                     <p className="mt-1 text-[11px] text-[#abb5a8]">
-                      灵感不必等待，创作现在开始
+                      灵感已接入，开始你的创作
                     </p>
                   </div>
                   <span className="float flex h-11 w-11 items-center justify-center rounded-full border border-[#e3ebdf] bg-white text-[#91af83]">
@@ -1608,7 +1678,7 @@
                 </div>
               </div>
 
-              <div className="grid items-start gap-7 lg:grid-cols-[340px_minmax(0,1fr)] xl:grid-cols-[370px_minmax(0,1fr)]">
+              <div className="workspace-layout grid items-start gap-7 lg:grid-cols-[340px_minmax(0,1fr)] xl:grid-cols-[370px_minmax(0,1fr)]">
                 {/* 左侧控制区 */}
                 <div className="space-y-5">
                   <PromptPanel
@@ -1653,7 +1723,7 @@
                     <div>
                       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ca99a]">
                         <Icon name="layout-template" size={13} />
-                        PREVIEW & EDIT CANVAS
+                        OUTPUT // LIVE CANVAS
                       </div>
                       <h2
                         id="canvas-heading"
@@ -1673,7 +1743,7 @@
                   </div>
 
                   {!hasResult && !generating && (
-                    <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#e2eadc] bg-white/70 px-4 py-3 text-xs leading-5 text-[#879783]">
+                    <div className="preview-notice mt-6 flex items-start gap-2.5 rounded-xl border border-[#e2eadc] bg-white/70 px-4 py-3 text-xs leading-5 text-[#879783]">
                       <Icon
                         name="lightbulb"
                         size={15}
